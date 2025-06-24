@@ -164,7 +164,14 @@ Public Class Form10
     Dim xlibro As Microsoft.Office.Interop.Excel.Application
     Dim strRutaExcel As String
 
-    strRutaExcel = "C:\SOURCESAFRATEC\Planilla de Cotizacion.xlsm"
+    ' Use relative path from application directory instead of hardcoded path
+    strRutaExcel = System.IO.Path.Combine(Application.StartupPath, "Planilla de Cotizacion.xlsm")
+    
+    ' Verify file exists before trying to open it
+    If Not System.IO.File.Exists(strRutaExcel) Then
+        MessageBox.Show("No se pudo encontrar el archivo: " & strRutaExcel, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Exit Sub
+    End If
 
     xlibro = CreateObject("Excel.Application")
     xlibro.Workbooks.Open(strRutaExcel)
@@ -320,7 +327,14 @@ End Sub
         Dim xlibro As Microsoft.Office.Interop.Excel.Application
         Dim strRutaExcel As String
 
-        strRutaExcel = "C:\SOURCESAFRATEC\Planilla de Cotizacion.xlsm"
+        ' Use relative path from application directory instead of hardcoded path
+        strRutaExcel = System.IO.Path.Combine(Application.StartupPath, "Planilla de Cotizacion.xlsm")
+        
+        ' Verify file exists before trying to open it
+        If Not System.IO.File.Exists(strRutaExcel) Then
+            MessageBox.Show("No se pudo encontrar el archivo: " & strRutaExcel, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End If
 
         xlibro = CreateObject("Excel.Application")
         xlibro.Workbooks.Open(strRutaExcel)
@@ -460,7 +474,14 @@ End Sub
         Dim xlibro As Microsoft.Office.Interop.Excel.Application
         Dim strRutaExcel As String
 
-        strRutaExcel = "C:\SOURCESAFRATEC\Planilla de Cotizacion.xlsm"
+        ' Use relative path from application directory instead of hardcoded path
+        strRutaExcel = System.IO.Path.Combine(Application.StartupPath, "Planilla de Cotizacion.xlsm")
+        
+        ' Verify file exists before trying to open it
+        If Not System.IO.File.Exists(strRutaExcel) Then
+            MessageBox.Show("No se pudo encontrar el archivo: " & strRutaExcel, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End If
 
         xlibro = CreateObject("Excel.Application")
         xlibro.Workbooks.Open(strRutaExcel)

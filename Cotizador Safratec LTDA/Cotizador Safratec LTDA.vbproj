@@ -470,6 +470,9 @@
     <Content Include="Imagen1.ico" />
     <Content Include="Imagen4.ico" />
     <Content Include="safratec+.ico" />
+    <Content Include="..\SOURCESAFRATEC\Planilla de Cotizacion.xlsm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Interop.Access.Dao">
