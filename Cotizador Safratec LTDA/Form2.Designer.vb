@@ -755,9 +755,9 @@ Partial Class Form2
         Me.Label6.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label6.Location = New System.Drawing.Point(374, 30)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(45, 13)
+        Me.Label6.Size = New System.Drawing.Size(33, 13)
         Me.Label6.TabIndex = 2
-        Me.Label6.Text = "R.U.T."
+        Me.Label6.Text = "RUT"
         '
         'TxtRazon
         '
@@ -3648,9 +3648,9 @@ Partial Class Form2
         Me.Label33.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Label33.Location = New System.Drawing.Point(1225, 345)
         Me.Label33.Name = "Label33"
-        Me.Label33.Size = New System.Drawing.Size(36, 13)
+        Me.Label33.Size = New System.Drawing.Size(67, 13)
         Me.Label33.TabIndex = 413
-        Me.Label33.Text = "Total"
+        Me.Label33.Text = "Total Neto"
         '
         'Label68
         '
@@ -4347,7 +4347,7 @@ Partial Class Form2
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.AutoScroll = True
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(1347, 950)
+        Me.ClientSize = New System.Drawing.Size(1330, 933)
         Me.Controls.Add(Me.Label35)
         Me.Controls.Add(Me.BtnexpAgrosuperAriztiaEUR)
         Me.Controls.Add(Me.BtnexpAgrosuperAriztiaUSD)

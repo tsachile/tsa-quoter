@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="Cotizador TSA SPA.exe" version="3.0.0.69" publicKeyToken="2b7676b726f4348b" language="neutral" processorArchitecture="msil" type="win32" />
+  <asmv1:assemblyIdentity name="Cotizador TSA SPA.exe" version="3.0.0.75" publicKeyToken="2b7676b726f4348b" language="neutral" processorArchitecture="msil" type="win32" />
   <description asmv2:iconFile="Imagen4.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
@@ -79,14 +79,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Cotizador TSA SPA.exe" size="7775776">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Cotizador TSA SPA.exe" size="7772704">
       <assemblyIdentity name="Cotizador TSA SPA" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>4SlTa3IiCOowScQA8WR0jEXOxqsTiqARG2vlf+2M62c=</dsig:DigestValue>
+        <dsig:DigestValue>yIqzvB2fpd2P4Tk2WGKATvizVZO7sd8cPuddpINY660=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -139,14 +139,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="System.Runtime.CompilerServices.Unsafe.dll" size="18024">
-      <assemblyIdentity name="System.Runtime.CompilerServices.Unsafe" version="6.0.0.0" publicKeyToken="B03F5F7F11D50A3A" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="System.Runtime.CompilerServices.Unsafe.dll" size="19224">
+      <assemblyIdentity name="System.Runtime.CompilerServices.Unsafe" version="6.0.1.0" publicKeyToken="B03F5F7F11D50A3A" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>N3aEiOjvRXKbx9miZ3YzxkUAQpdbuWUW4YbabLnNDc8=</dsig:DigestValue>
+        <dsig:DigestValue>LW9BnWQWgtjvxKQOhQ0uhd5RnWgjuT2vKu7mMgbU4y0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -174,13 +174,13 @@
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="Cotizador TSA SPA.exe.config" size="2877">
+  <file name="Cotizador TSA SPA.exe.config" size="2748">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>HQvED572MfPOoEJDM8Fp5CoPz29jDulhoKDAqBa40mM=</dsig:DigestValue>
+      <dsig:DigestValue>LPCxuMB3/dGPhLBIPGMp1CCY6PbbqOjdxcUe/OsSv8U=</dsig:DigestValue>
     </hash>
   </file>
   <file name="ico-TSA.ico" size="147902">
@@ -236,4 +236,4 @@
       <!--<supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />-->
     </application>
   </compatibility>
-<publisherIdentity name="CN=DESKTOP-JLF3GCT\Tulio Gonzalez M" issuerKeyHash="c4bd69d83d4c589b4a134c6a18052ffdf9510c83" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>TT/SIQeDgnuzc15DLycjjA4jdlo966HGBqivAk0h2xs=</DigestValue></Reference></SignedInfo><SignatureValue>X2F4NSsNACqVvwYcCVZrbcxFDSwSNfJYIqI9L6M7XoCBEFmmwZyNId9AQEcM/lj+Er0f4GH/YA/tvC/sQKSljg43ICY08bBjMM1gp3YA8sJDKlnd5qu8zccrYU16Lr/gffngvU1qhVW1UK2cQ5W5z0BifjNIGk6utRNpYgGnD0Y=</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>rB7juTKoaAhBHwkbEdiyk2YPG7DSkd/E3Ma+hzQ0sF69Y039bKt0ESHohNkhIFZ6wYlQigadDo61bIC8UTFuYdpkLVPgnmy38EQTMC4hp0bJ0vxYhjGVFHl07ipUphcQX5KGqhK+ymAvyiGJ7hNl49S1QOXaaMWFuwP/EjGaUeU=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="1bdb214d02afa806c6a1eb3d5a76230e8c23272f435e73b37b82830721d23f4d" Description="" Url=""><as:assemblyIdentity name="Cotizador TSA SPA.exe" version="3.0.0.69" publicKeyToken="2b7676b726f4348b" language="neutral" processorArchitecture="msil" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>CN=DESKTOP-JLF3GCT\Tulio Gonzalez M</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>4S7Ucf2iVQyHRz+Nz4bDv4zk1ipcb9IShRC31SqW6U0=</DigestValue></Reference></SignedInfo><SignatureValue>OD/RHSfBkhlOBP9U852gF9RHnxdwM446yMqeQHjHwjOaTaydaNKgjjDVaejbmniy33Sv3PLMjq5r0Jj03VqwzpGaCcSs9iEDZECrkos51A9/n+G7d1zEKuIaJO+xrrCqPmQXVVPa1qMBqj2O8km0Mcs5VHTnln1L0vjKa6zgj70=</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>rB7juTKoaAhBHwkbEdiyk2YPG7DSkd/E3Ma+hzQ0sF69Y039bKt0ESHohNkhIFZ6wYlQigadDo61bIC8UTFuYdpkLVPgnmy38EQTMC4hp0bJ0vxYhjGVFHl07ipUphcQX5KGqhK+ymAvyiGJ7hNl49S1QOXaaMWFuwP/EjGaUeU=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIICGTCCAYKgAwIBAgIQZdJ1HbTSdI1KhYyjMiQoTjANBgkqhkiG9w0BAQsFADBLMUkwRwYDVQQDHkAARABFAFMASwBUAE8AUAAtAEoATABGADMARwBDAFQAXABUAHUAbABpAG8AIABHAG8AbgB6AGEAbABlAHoAIABNMB4XDTI1MDUxMTIxMzExNloXDTI2MDUxMjAzMzExNlowSzFJMEcGA1UEAx5AAEQARQBTAEsAVABPAFAALQBKAEwARgAzAEcAQwBUAFwAVAB1AGwAaQBvACAARwBvAG4AegBhAGwAZQB6ACAATTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEArB7juTKoaAhBHwkbEdiyk2YPG7DSkd/E3Ma+hzQ0sF69Y039bKt0ESHohNkhIFZ6wYlQigadDo61bIC8UTFuYdpkLVPgnmy38EQTMC4hp0bJ0vxYhjGVFHl07ipUphcQX5KGqhK+ymAvyiGJ7hNl49S1QOXaaMWFuwP/EjGaUeUCAwEAATANBgkqhkiG9w0BAQsFAAOBgQAqfPbJhar06tad/3bDEh9080ZTl+7D80c/958tgbhOPHuvhhTaNy8JjEOClX+veVhBkXMrm61jfp/0qErQLmSxIp/s54NPxg/B3J+BX+RBJ3JNZCluPFOSgPAc89He6OsS01WoWF98lg8ZTxGd+7KJV/q9q4bBwbqt+yLdAAih0A==</X509Certificate></X509Data></KeyInfo></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>
+<publisherIdentity name="CN=DESKTOP-JLF3GCT\Tulio Gonzalez M" issuerKeyHash="c4bd69d83d4c589b4a134c6a18052ffdf9510c83" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>t1ryvGs5PgnJ4v0UKPB9n4tscfelcphLm+cl4Ln/4V4=</DigestValue></Reference></SignedInfo><SignatureValue>WWdPQv5HPl2Anfj2uiFom491kcW2oNPGYycwSUA5r7pwOfJADr0H5hbGk/WcRZd6ggvjP56HTbsM2gnemje4Faw9c+Q4rYOKZSdTkqX1Ji514Og3c71O7r/xUqiOlEzx1G6CQpTyuOYb2al8/4Q+rzpbL4n6kLj+m5JMCy9URr4=</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>rB7juTKoaAhBHwkbEdiyk2YPG7DSkd/E3Ma+hzQ0sF69Y039bKt0ESHohNkhIFZ6wYlQigadDo61bIC8UTFuYdpkLVPgnmy38EQTMC4hp0bJ0vxYhjGVFHl07ipUphcQX5KGqhK+ymAvyiGJ7hNl49S1QOXaaMWFuwP/EjGaUeU=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="5ee1ffb9e025e79b4b9872a5f7716c8b9f7df02814fde2c9093e396bbcf25ab7" Description="" Url=""><as:assemblyIdentity name="Cotizador TSA SPA.exe" version="3.0.0.75" publicKeyToken="2b7676b726f4348b" language="neutral" processorArchitecture="msil" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>CN=DESKTOP-JLF3GCT\Tulio Gonzalez M</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>86a+HU+wOBSRO3Tv+18u1ZSf+gbDyz5RFQmY7pjGKac=</DigestValue></Reference></SignedInfo><SignatureValue>OJ3EoaexrGWjsD+M2cDBThQJxEIN7FK975OO9UDIS7c3ipgJCLsfHeOf621WyTn53HSzKE/SP6n90XDKM9C8QKW37UgXKEKEMo5G5wDMt60kTnKU8cQl4iuEX+ZfMYAMg7e3V3dPSUR0dXverTR8redjavddeg07fsSdMFphSxA=</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>rB7juTKoaAhBHwkbEdiyk2YPG7DSkd/E3Ma+hzQ0sF69Y039bKt0ESHohNkhIFZ6wYlQigadDo61bIC8UTFuYdpkLVPgnmy38EQTMC4hp0bJ0vxYhjGVFHl07ipUphcQX5KGqhK+ymAvyiGJ7hNl49S1QOXaaMWFuwP/EjGaUeU=</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>MIICGTCCAYKgAwIBAgIQZdJ1HbTSdI1KhYyjMiQoTjANBgkqhkiG9w0BAQsFADBLMUkwRwYDVQQDHkAARABFAFMASwBUAE8AUAAtAEoATABGADMARwBDAFQAXABUAHUAbABpAG8AIABHAG8AbgB6AGEAbABlAHoAIABNMB4XDTI1MDUxMTIxMzExNloXDTI2MDUxMjAzMzExNlowSzFJMEcGA1UEAx5AAEQARQBTAEsAVABPAFAALQBKAEwARgAzAEcAQwBUAFwAVAB1AGwAaQBvACAARwBvAG4AegBhAGwAZQB6ACAATTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEArB7juTKoaAhBHwkbEdiyk2YPG7DSkd/E3Ma+hzQ0sF69Y039bKt0ESHohNkhIFZ6wYlQigadDo61bIC8UTFuYdpkLVPgnmy38EQTMC4hp0bJ0vxYhjGVFHl07ipUphcQX5KGqhK+ymAvyiGJ7hNl49S1QOXaaMWFuwP/EjGaUeUCAwEAATANBgkqhkiG9w0BAQsFAAOBgQAqfPbJhar06tad/3bDEh9080ZTl+7D80c/958tgbhOPHuvhhTaNy8JjEOClX+veVhBkXMrm61jfp/0qErQLmSxIp/s54NPxg/B3J+BX+RBJ3JNZCluPFOSgPAc89He6OsS01WoWF98lg8ZTxGd+7KJV/q9q4bBwbqt+yLdAAih0A==</X509Certificate></X509Data></KeyInfo></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>

@@ -62,11 +62,6 @@ Cotizador TSA SPA
  Carga los datos en los ComboBox desde la base de datos.
  </summary>
 </member>
-<member name="M:Cotizador_Safratec_LTDA.Form10.CargarComboBox(System.String,System.Windows.Forms.ComboBox,System.String,MySql.Data.MySqlClient.MySqlConnection)">
- <summary>
- Método genérico para cargar datos en un ComboBox.
- </summary>
-</member>
 <member name="M:Cotizador_Safratec_LTDA.Form10.LimpiarControles">
  <summary>
  Limpia los valores de los controles al cargar el formulario.

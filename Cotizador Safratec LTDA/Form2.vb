@@ -103,7 +103,21 @@ Public Class Form2
             End If
         Next
     End Sub
-
+    ' Declarar a nivel de formulario
+    Private DireccionesEntrega As New Dictionary(Of String, String)
+    ' Diccionario local para asociar Objetivos (ComboBox3) con Tipos (ComboBox1)
+    Private TiposPorObjetivo As New Dictionary(Of String, List(Of String)) From {
+    {"Aves", New List(Of String) From {"Pollos", "Gallinas", "Pavos"}},
+    {"Cerdos", New List(Of String) From {"Lechones", "Engorde", "Reproductoras"}},
+    {"Rumiantes", New List(Of String) From {"Vacas", "Cabras", "Ovejas"}},
+    {"Otros", New List(Of String) From {"Equinos", "Caninos", "Felinos"}}
+}
+    ' Diccionario: Tipo -> Lista de Clases
+    Dim ClasesPorTipo As New Dictionary(Of String, List(Of String)) From {
+    {"Pollos", New List(Of String) From {"Engorda", "Reproductoras"}},
+    {"Gallinas", New List(Of String) From {"Crianza", "Ponedoras"}},
+     {"Pavos", New List(Of String) From {"Engorda", "Reproductoras"}}
+    }
 
     Private Sub Form2_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
         ' Asignar el manejador a todos los TextBox y ComboBox del formulario
@@ -127,13 +141,7 @@ Public Class Form2
             ' Usar un solo MySqlDataAdapter para obtener todos los datos
             Dim consulta As String = "
             SELECT DISTINCT Vendedores, Mail, Telefono, Inicial, Pagina FROM Vendedores;
-            SELECT DISTINCT LUGAR_ENTREGA, D_entrega FROM Lugar;
-            SELECT DISTINCT condiciones FROM Pago;
-            SELECT DISTINCT validez FROM Validez;
-            SELECT DISTINCT Trato FROM Trato;
-            SELECT DISTINCT Genero FROM Genero;
-            SELECT DISTINCT Objetivo FROM Objetivo;
-        "
+                    "
 
             ' Llenar todas las tablas con el adaptador
             Dim adapter As New MySqlDataAdapter(consulta, cnx)
@@ -144,23 +152,43 @@ Public Class Form2
             CboContacto.DataSource = ds.Tables(0)
             CboContacto.DisplayMember = "Vendedores"
 
-            CboLugar.DataSource = ds.Tables(1)
-            CboLugar.DisplayMember = "LUGAR_ENTREGA"
+            '=====================================================================  Nueva asignacion de codigo fuente =============================================================================================
+            ' Asignar ítems
+            CboLugar.Items.Add("BODEGA SANTIAGO LAMPA")
+            CboLugar.Items.Add("PLANTEL")
+            CboLugar.Items.Add("OTROS")
 
-            Cbopago.DataSource = ds.Tables(2)
-            Cbopago.DisplayMember = "condiciones"
+            ' Asociar direcciones
+            DireccionesEntrega("BODEGA SANTIAGO LAMPA") = "Costanera poniente Ferrocarril 941, Lampa, Bodega B-12, PROCENTRO, Telefono: + 56 9 2375 9373"
+            DireccionesEntrega("PLANTEL") = ""
+            DireccionesEntrega("OTROS") = ""
 
-            CboValidez.DataSource = ds.Tables(3)
-            CboValidez.DisplayMember = "validez"
+            Cbopago.Items.Add("A CONVENIR")
+            Cbopago.Items.Add("CONTADO")
+            Cbopago.Items.Add("50% DE CONTADO Y 50% CONTRA ENTREGA")
+            Cbopago.Items.Add("40% DE CONTADO, 30 Y 60 DIAS")
+            Cbopago.Items.Add("CREDITO A 30 DIAS")
+            Cbopago.Items.Add("CREDITO A 60 DIAS")
+            Cbopago.Items.Add("CREDITO A 90 DIAS")
+            Cbopago.Items.Add("CHEQUE AL DIA")
+            Cbopago.Items.Add("CHEQUE A 30 DIAS")
+            Cbopago.Items.Add("CHEQUE A 60 DIAS")
+            Cbopago.Items.Add("CHEQUE A 90 DIAS")
 
-            ComboBox4.DataSource = ds.Tables(4)
-            ComboBox4.DisplayMember = "Trato"
 
-            ComboBox2.DataSource = ds.Tables(5)
-            ComboBox2.DisplayMember = "Genero"
+            CboValidez.Items.Add("TIENE UNA VALIDEZ DE 10 DIAS")
+            CboValidez.Items.Add("TIENE UNA VALIDEZ DE 15 DIAS")
+            CboValidez.Items.Add("TIENE UNA VALIDEZ DE 20 DIAS")
+            CboValidez.Items.Add("TIENE UNA VALIDEZ DE 30 DIAS")
 
-            ComboBox3.DataSource = ds.Tables(6)
-            ComboBox3.DisplayMember = "Objetivo"
+            ComboBox4.Items.Add("Tu")
+            ComboBox4.Items.Add("Usted")
+
+            ComboBox2.Items.Add("Femenino")
+            ComboBox2.Items.Add("Masculino")
+
+            ComboBox3.Items.Clear()
+            ComboBox3.Items.AddRange(TiposPorObjetivo.Keys.ToArray())
 
             ' Llenar ComboBox6 con las opciones de moneda
             ComboBox6.Items.Add("CLP")
@@ -244,7 +272,12 @@ Public Class Form2
     End Sub
 
     Private Sub CboLugar_SelectedIndexChanged(sender As Object, e As EventArgs) Handles CboLugar.SelectedIndexChanged
-        Me.TxtDireccionEntrega.Text = CType(Me.CboLugar.DataSource, DataTable).Rows(Me.CboLugar.SelectedIndex)("D_entrega") ' Direccion entrega
+        Dim lugar As String = CboLugar.SelectedItem.ToString()
+        If DireccionesEntrega.ContainsKey(lugar) Then
+            TxtDireccionEntrega.Text = DireccionesEntrega(lugar)
+        Else
+            TxtDireccionEntrega.Text = ""
+        End If
     End Sub
     Private Sub DGRazonSocial_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles DGRazonSocial.CellContentClick
         Try
@@ -332,9 +365,6 @@ Public Class Form2
                 ComboBox4.Text = dt.Rows(TxtAtencion.SelectedIndex)("Trato").ToString()
                 TextBox162.Text = dt.Rows(TxtAtencion.SelectedIndex)("Cargo").ToString()
                 ComboBox2.Text = dt.Rows(TxtAtencion.SelectedIndex)("Genero").ToString()
-                ComboBox3.Text = dt.Rows(TxtAtencion.SelectedIndex)("Objeto").ToString()
-                ComboBox1.Text = dt.Rows(TxtAtencion.SelectedIndex)("Tipo").ToString()
-                ComboBox5.Text = dt.Rows(TxtAtencion.SelectedIndex)("Clase").ToString()
             Else
                 ' Si no hay selección, dejar los controles en blanco
                 TxtDireccion.Text = ""
@@ -816,7 +846,7 @@ Public Class Form2
         ' Para primera linea activa de Materiales
         If TextBox1.Text <> "" Then xlibro.Range("D24").Value = TextBox1.Text 'Descripcion de Materiales
         If TextBox2.Text <> "" Then xlibro.Range("C24").Value = TextBox2.Text 'Codigo del Material
-        If NumericUpDown1.Text <> "0" And NumericUpDown1.Text <> "" Then xlibro.Range("H24").Value = NumericUpDown1.Text 'Cantidad del Material
+        xlibro.Range("H24").Value = If(NumericUpDown1.Value = 0, "", NumericUpDown1.Value) ' Cantidad Material
         If TextBox41.Text <> "" Then xlibro.Range("M24").Value = TextBox41.Text 'Costo de Defontana
         If TextBox3.Text <> "" Then xlibro.Range("N24").Value = TextBox3.Text 'Margen (%)
         If TextBox122.Text <> "" Then xlibro.Range("O24").Value = TextBox122.Text 'Para costo de Reposicion articulos de GSI
@@ -824,7 +854,7 @@ Public Class Form2
         ' 2 linea de Materiales
         If TextBox5.Text <> "" Then xlibro.Range("D25").Value = TextBox5.Text 'Descripcion de Materiales
         If TextBox6.Text <> "" Then xlibro.Range("C25").Value = TextBox6.Text 'Codigo del Material
-        If NumericUpDown2.Text <> "0" And NumericUpDown2.Text <> "" Then xlibro.Range("H25").Value = NumericUpDown2.Text 'Cantidad del Material
+        xlibro.Range("H25").Value = If(NumericUpDown2.Value = 0, "", NumericUpDown2.Value) ' Cantidad Material
         If TextBox42.Text <> "" Then xlibro.Range("M25").Value = TextBox42.Text 'Costo de Defontana
         If TextBox7.Text <> "" Then xlibro.Range("N25").Value = TextBox7.Text 'Margen (%)
         If TextBox123.Text <> "" Then xlibro.Range("O25").Value = TextBox123.Text 'Para costo de Reposicion articulos de GSI
@@ -832,7 +862,7 @@ Public Class Form2
         ' 3 linea de Materiales
         If TextBox9.Text <> "" Then xlibro.Range("D26").Value = TextBox9.Text 'Descripcion de Materiales
         If TextBox10.Text <> "" Then xlibro.Range("C26").Value = TextBox10.Text 'Codigo del Material
-        If NumericUpDown3.Text <> "0" And NumericUpDown3.Text <> "" Then xlibro.Range("H26").Value = NumericUpDown3.Text 'Cantidad del Material
+        xlibro.Range("H26").Value = If(NumericUpDown3.Value = 0, "", NumericUpDown3.Value) ' Cantidad Material
         If TextBox43.Text <> "" Then xlibro.Range("M26").Value = TextBox43.Text 'Costo de Defontana
         If TextBox11.Text <> "" Then xlibro.Range("N26").Value = TextBox11.Text 'Margen (%)
         If TextBox124.Text <> "" Then xlibro.Range("O26").Value = TextBox124.Text 'Para costo de Reposicion articulos de GSI
@@ -840,7 +870,7 @@ Public Class Form2
         ' 4 linea de Materiales
         If TextBox13.Text <> "" Then xlibro.Range("D27").Value = TextBox13.Text 'Descripcion de Materiales
         If TextBox14.Text <> "" Then xlibro.Range("C27").Value = TextBox14.Text 'Codigo del Material
-        If NumericUpDown4.Text <> "0" And NumericUpDown4.Text <> "" Then xlibro.Range("H27").Value = NumericUpDown4.Text 'Cantidad del Material
+        xlibro.Range("H27").Value = If(NumericUpDown4.Value = 0, "", NumericUpDown4.Value) ' Cantidad Material
         If TextBox44.Text <> "" Then xlibro.Range("M27").Value = TextBox44.Text 'Costo de Defontana
         If TextBox15.Text <> "" Then xlibro.Range("N27").Value = TextBox15.Text 'Margen (%)
         If TextBox125.Text <> "" Then xlibro.Range("O27").Value = TextBox125.Text 'Para costo de Reposicion articulos de GSI
@@ -848,7 +878,7 @@ Public Class Form2
         ' 5 linea de Materiales
         If TextBox17.Text <> "" Then xlibro.Range("D28").Value = TextBox17.Text 'Descripcion de Materiales
         If TextBox18.Text <> "" Then xlibro.Range("C28").Value = TextBox18.Text 'Codigo del Material
-        If NumericUpDown5.Text <> "0" And NumericUpDown5.Text <> "" Then xlibro.Range("H28").Value = NumericUpDown5.Text 'Cantidad del Material
+        xlibro.Range("H28").Value = If(NumericUpDown5.Value = 0, "", NumericUpDown5.Value) ' Cantidad Material
         If TextBox45.Text <> "" Then xlibro.Range("M28").Value = TextBox45.Text 'Costo de Defontana
         If TextBox19.Text <> "" Then xlibro.Range("N28").Value = TextBox19.Text 'Margen (%)
         If TextBox126.Text <> "" Then xlibro.Range("O28").Value = TextBox126.Text 'Para costo de Reposicion articulos de GSI
@@ -856,7 +886,7 @@ Public Class Form2
         ' 6 linea de Materiales
         If TextBox21.Text <> "" Then xlibro.Range("D29").Value = TextBox21.Text 'Descripcion de Materiales
         If TextBox22.Text <> "" Then xlibro.Range("C29").Value = TextBox22.Text 'Codigo del Material
-        If NumericUpDown6.Text <> "0" And NumericUpDown6.Text <> "" Then xlibro.Range("H29").Value = NumericUpDown6.Text 'Cantidad del Material
+        xlibro.Range("H29").Value = If(NumericUpDown6.Value = 0, "", NumericUpDown6.Value) ' Cantidad Material
         If TextBox46.Text <> "" Then xlibro.Range("M29").Value = TextBox46.Text 'Costo de Defontana
         If TextBox23.Text <> "" Then xlibro.Range("N29").Value = TextBox23.Text 'Margen (%)
         If TextBox127.Text <> "" Then xlibro.Range("O29").Value = TextBox127.Text 'Para costo de Reposicion articulos de GSI
@@ -864,7 +894,7 @@ Public Class Form2
         ' 7 linea de Materiales
         If TextBox25.Text <> "" Then xlibro.Range("D30").Value = TextBox25.Text 'Descripcion de Materiales
         If TextBox26.Text <> "" Then xlibro.Range("C30").Value = TextBox26.Text 'Codigo del Material
-        If NumericUpDown7.Text <> "0" And NumericUpDown7.Text <> "" Then xlibro.Range("H30").Value = NumericUpDown7.Text 'Cantidad del Material
+        xlibro.Range("H30").Value = If(NumericUpDown7.Value = 0, "", NumericUpDown7.Value) ' Cantidad Material
         If TextBox47.Text <> "" Then xlibro.Range("M30").Value = TextBox47.Text 'Costo de Defontana
         If TextBox27.Text <> "" Then xlibro.Range("N30").Value = TextBox27.Text 'Margen (%)
         If TextBox128.Text <> "" Then xlibro.Range("O30").Value = TextBox128.Text 'Para costo de Reposicion articulos de GSI
@@ -872,7 +902,7 @@ Public Class Form2
         ' 8 Linea de Materiales
         If TextBox29.Text <> "" Then xlibro.Range("D31").Value = TextBox29.Text 'Descripcion de Materiales
         If TextBox30.Text <> "" Then xlibro.Range("C31").Value = TextBox30.Text 'Codigo del Material
-        If NumericUpDown8.Text <> "0" And NumericUpDown8.Text <> "" Then xlibro.Range("H31").Value = NumericUpDown8.Text 'Cantidad del Material
+        xlibro.Range("H31").Value = If(NumericUpDown8.Value = 0, "", NumericUpDown8.Value) ' Cantidad Material
         If TextBox48.Text <> "" Then xlibro.Range("M31").Value = TextBox48.Text 'Costo de Defontana
         If TextBox31.Text <> "" Then xlibro.Range("N31").Value = TextBox31.Text 'Margen (%)
         If TextBox129.Text <> "" Then xlibro.Range("O31").Value = TextBox129.Text 'Para costo de Reposicion articulos de GSI
@@ -880,7 +910,7 @@ Public Class Form2
         ' 9 linea de Materiales
         If TextBox33.Text <> "" Then xlibro.Range("D32").Value = TextBox33.Text 'Descripcion de Materiales
         If TextBox34.Text <> "" Then xlibro.Range("C32").Value = TextBox34.Text 'Codigo del Material
-        If NumericUpDown9.Text <> "0" And NumericUpDown9.Text <> "" Then xlibro.Range("H32").Value = NumericUpDown9.Text 'Cantidad del Material
+        xlibro.Range("H32").Value = If(NumericUpDown9.Value = 0, "", NumericUpDown9.Value) ' Cantidad Material
         If TextBox49.Text <> "" Then xlibro.Range("M32").Value = TextBox49.Text 'Costo de Defontana
         If TextBox35.Text <> "" Then xlibro.Range("N32").Value = TextBox35.Text 'Margen (%)
         If TextBox130.Text <> "" Then xlibro.Range("O32").Value = TextBox130.Text 'Para costo de Reposicion articulos de GSI
@@ -888,7 +918,7 @@ Public Class Form2
         ' 10 Linea de Materiales
         If TextBox37.Text <> "" Then xlibro.Range("D33").Value = TextBox37.Text 'Descripcion de Materiales
         If TextBox38.Text <> "" Then xlibro.Range("C33").Value = TextBox38.Text 'Codigo del Material
-        If NumericUpDown10.Text <> "0" And NumericUpDown10.Text <> "" Then xlibro.Range("H33").Value = NumericUpDown10.Text 'Cantidad del Material
+        xlibro.Range("H33").Value = If(NumericUpDown10.Value = 0, "", NumericUpDown10.Value) ' Cantidad Material
         If TextBox50.Text <> "" Then xlibro.Range("M33").Value = TextBox50.Text 'Costo de Defontana
         If TextBox39.Text <> "" Then xlibro.Range("N33").Value = TextBox39.Text 'Margen (%)
         If TextBox131.Text <> "" Then xlibro.Range("O33").Value = TextBox131.Text 'Para costo de Reposicion articulos de GSI
@@ -896,7 +926,7 @@ Public Class Form2
         ' 11 Linea de Materiales
         If TextBox62.Text <> "" Then xlibro.Range("D34").Value = TextBox62.Text 'Descripcion de Materiales
         If TextBox63.Text <> "" Then xlibro.Range("C34").Value = TextBox63.Text 'Codigo del Material
-        If NumericUpDown11.Text <> "0" And NumericUpDown11.Text <> "" Then xlibro.Range("H34").Value = NumericUpDown11.Text 'Cantidad del Material
+        xlibro.Range("H34").Value = If(NumericUpDown11.Value = 0, "", NumericUpDown11.Value) ' Cantidad Material
         If TextBox102.Text <> "" Then xlibro.Range("M34").Value = TextBox102.Text 'Costo de Defontana
         If TextBox64.Text <> "" Then xlibro.Range("N34").Value = TextBox64.Text 'Margen (%)
         If TextBox112.Text <> "" Then xlibro.Range("J34").Value = TextBox112.Text 'Total
@@ -905,7 +935,7 @@ Public Class Form2
         ' 12 Linea de Materiales
         If TextBox66.Text <> "" Then xlibro.Range("D35").Value = TextBox66.Text 'Descripcion de Materiales
         If TextBox67.Text <> "" Then xlibro.Range("C35").Value = TextBox67.Text 'Codigo del Material
-        If NumericUpDown12.Text <> "0" And NumericUpDown12.Text <> "" Then xlibro.Range("H35").Value = NumericUpDown12.Text 'Cantidad del Material
+        xlibro.Range("H35").Value = If(NumericUpDown12.Value = 0, "", NumericUpDown12.Value) ' Cantidad Material
         If TextBox103.Text <> "" Then xlibro.Range("M35").Value = TextBox103.Text 'Costo de Defontana
         If TextBox68.Text <> "" Then xlibro.Range("N35").Value = TextBox68.Text 'Margen (%)
         If TextBox133.Text <> "" Then xlibro.Range("O35").Value = TextBox133.Text 'Para costo de Reposicion articulos de GSI
@@ -913,7 +943,7 @@ Public Class Form2
         ' 13 Linea de Materiales 
         If TextBox70.Text <> "" Then xlibro.Range("D36").Value = TextBox70.Text 'Descripcion de Materiales
         If TextBox71.Text <> "" Then xlibro.Range("C36").Value = TextBox71.Text 'Codigo del Material
-        If NumericUpDown13.Text <> "0" And NumericUpDown13.Text <> "" Then xlibro.Range("H36").Value = NumericUpDown13.Text 'Cantidad del Material
+        xlibro.Range("H36").Value = If(NumericUpDown13.Value = 0, "", NumericUpDown13.Value) ' Cantidad Material
         If TextBox104.Text <> "" Then xlibro.Range("M36").Value = TextBox104.Text 'Costo de Defontana
         If TextBox72.Text <> "" Then xlibro.Range("N36").Value = TextBox72.Text 'Margen (%)
         If TextBox114.Text <> "" Then xlibro.Range("J36").Value = TextBox114.Text 'Total
@@ -922,7 +952,7 @@ Public Class Form2
         ' 14 Linea de Materiales
         If TextBox74.Text <> "" Then xlibro.Range("D37").Value = TextBox74.Text 'Descripcion de Materiales
         If TextBox75.Text <> "" Then xlibro.Range("C37").Value = TextBox75.Text 'Codigo del Material
-        If NumericUpDown14.Text <> "0" And NumericUpDown14.Text <> "" Then xlibro.Range("H37").Value = NumericUpDown14.Text 'Cantidad del Material
+        xlibro.Range("H37").Value = If(NumericUpDown14.Value = 0, "", NumericUpDown14.Value) ' Cantidad Material
         If TextBox105.Text <> "" Then xlibro.Range("M37").Value = TextBox105.Text 'Costo de Defontana
         If TextBox76.Text <> "" Then xlibro.Range("N37").Value = TextBox76.Text 'Margen (%)
         If TextBox135.Text <> "" Then xlibro.Range("O37").Value = TextBox135.Text 'Para costo de Reposicion articulos de GSI
@@ -930,7 +960,7 @@ Public Class Form2
         ' 15 Linea de Materiales
         If TextBox78.Text <> "" Then xlibro.Range("D38").Value = TextBox78.Text 'Descripcion de Materiales
         If TextBox79.Text <> "" Then xlibro.Range("C38").Value = TextBox79.Text 'Codigo del Material
-        If NumericUpDown15.Text <> "0" And NumericUpDown15.Text <> "" Then xlibro.Range("H38").Value = NumericUpDown15.Text 'Cantidad del Materia
+        xlibro.Range("H38").Value = If(NumericUpDown15.Value = 0, "", NumericUpDown15.Value) ' Cantidad Material
         If TextBox106.Text <> "" Then xlibro.Range("M38").Value = TextBox106.Text 'Costo de Defontana
         If TextBox80.Text <> "" Then xlibro.Range("N38").Value = TextBox80.Text 'Margen (%)
         If TextBox136.Text <> "" Then xlibro.Range("O38").Value = TextBox136.Text 'Para costo de Reposicion articulos de GSI
@@ -938,7 +968,7 @@ Public Class Form2
         ' 16 Linea de Materiales
         If TextBox82.Text <> "" Then xlibro.Range("D39").Value = TextBox82.Text 'Descripcion de Materiales
         If TextBox83.Text <> "" Then xlibro.Range("C39").Value = TextBox83.Text 'Codigo del Material
-        If NumericUpDown16.Text <> "0" And NumericUpDown16.Text <> "" Then xlibro.Range("H39").Value = NumericUpDown16.Text 'Cantidad del Material
+        xlibro.Range("H39").Value = If(NumericUpDown16.Value = 0, "", NumericUpDown16.Value) ' Cantidad Material
         If TextBox107.Text <> "" Then xlibro.Range("M39").Value = TextBox107.Text 'Costo de Defontana
         If TextBox84.Text <> "" Then xlibro.Range("N39").Value = TextBox84.Text 'Margen (%)
         If TextBox137.Text <> "" Then xlibro.Range("O39").Value = TextBox137.Text 'Para costo de Reposicion articulos de GSI
@@ -946,7 +976,7 @@ Public Class Form2
         ' 17 Linea de Materiales
         If TextBox86.Text <> "" Then xlibro.Range("D40").Value = TextBox86.Text 'Descripcion de Materiales
         If TextBox87.Text <> "" Then xlibro.Range("C40").Value = TextBox87.Text 'Codigo del Material
-        If NumericUpDown17.Text <> "0" And NumericUpDown17.Text <> "" Then xlibro.Range("H40").Value = NumericUpDown17.Text 'Cantidad del Material
+        xlibro.Range("H40").Value = If(NumericUpDown17.Value = 0, "", NumericUpDown17.Value) ' Cantidad Material
         If TextBox108.Text <> "" Then xlibro.Range("M40").Value = TextBox108.Text 'Costo de Defontana
         If TextBox88.Text <> "" Then xlibro.Range("N40").Value = TextBox88.Text 'Margen (%)
         If TextBox138.Text <> "" Then xlibro.Range("O40").Value = TextBox138.Text 'Para costo de Reposicion articulos de GSI
@@ -954,7 +984,7 @@ Public Class Form2
         ' 18 Linea de Materiales
         If TextBox90.Text <> "" Then xlibro.Range("D41").Value = TextBox90.Text 'Descripcion de Materiales
         If TextBox91.Text <> "" Then xlibro.Range("C41").Value = TextBox91.Text 'Codigo del Material
-        If NumericUpDown18.Text <> "0" And NumericUpDown18.Text <> "" Then xlibro.Range("H41").Value = NumericUpDown18.Text 'Cantidad del Material
+        xlibro.Range("H41").Value = If(NumericUpDown18.Value = 0, "", NumericUpDown18.Value) ' Cantidad Material
         If TextBox109.Text <> "" Then xlibro.Range("M41").Value = TextBox109.Text 'Costo de Defontana
         If TextBox92.Text <> "" Then xlibro.Range("N41").Value = TextBox92.Text 'Margen (%)
         If TextBox139.Text <> "" Then xlibro.Range("O41").Value = TextBox139.Text 'Para costo de Reposicion articulos de GSI
@@ -962,7 +992,7 @@ Public Class Form2
         ' 19 Linea de Materiales
         If TextBox94.Text <> "" Then xlibro.Range("D42").Value = TextBox94.Text 'Descripcion de Materiales
         If TextBox95.Text <> "" Then xlibro.Range("C42").Value = TextBox95.Text 'Codigo del Material
-        If NumericUpDown19.Text <> "0" And NumericUpDown19.Text <> "" Then xlibro.Range("H42").Value = NumericUpDown19.Text 'Cantidad del Material
+        xlibro.Range("H42").Value = If(NumericUpDown19.Value = 0, "", NumericUpDown19.Value) ' Cantidad Material
         If TextBox110.Text <> "" Then xlibro.Range("M42").Value = TextBox110.Text 'Costo de Defontana
         If TextBox96.Text <> "" Then xlibro.Range("N42").Value = TextBox96.Text 'Margen (%)
         If TextBox140.Text <> "" Then xlibro.Range("O42").Value = TextBox140.Text 'Para costo de Reposicion articulos de GSI
@@ -970,7 +1000,7 @@ Public Class Form2
         ' 20 Linea de Materiales
         If TextBox98.Text <> "" Then xlibro.Range("D43").Value = TextBox98.Text 'Descripcion de Materiales
         If TextBox99.Text <> "" Then xlibro.Range("C43").Value = TextBox99.Text 'Codigo del Material
-        If NumericUpDown20.Text <> "0" And NumericUpDown20.Text <> "" Then xlibro.Range("H43").Value = NumericUpDown20.Text 'Cantidad del Material
+        xlibro.Range("H43").Value = If(NumericUpDown20.Value = 0, "", NumericUpDown20.Value) ' Cantidad Material
         If TextBox111.Text <> "" Then xlibro.Range("M43").Value = TextBox111.Text 'Costo de Defontana
         If TextBox100.Text <> "" Then xlibro.Range("N43").Value = TextBox100.Text 'Margen (%)
         If TextBox141.Text <> "" Then xlibro.Range("O43").Value = TextBox141.Text 'Para costo de Reposicion articulos de GSI
@@ -1023,7 +1053,7 @@ Public Class Form2
         ' Para primera linea activa de Materiales
         If TextBox1.Text <> "" Then xlibro.Range("D24").Value = TextBox1.Text 'Descripcion de Materiales
         If TextBox2.Text <> "" Then xlibro.Range("C24").Value = TextBox2.Text 'Codigo del Material
-        If NumericUpDown1.Text <> "0" And NumericUpDown1.Text <> "" Then xlibro.Range("H24").Value = NumericUpDown1.Text 'Cantidad del Material
+        xlibro.Range("H24").Value = If(NumericUpDown1.Value = 0, "", NumericUpDown1.Value) ' Cantidad Material
         If TextBox41.Text <> "" Then xlibro.Range("M24").Value = TextBox41.Text 'Costo de Defontana
         If TextBox3.Text <> "" Then xlibro.Range("N24").Value = TextBox3.Text 'Margen (%)
         If TextBox122.Text <> "" Then xlibro.Range("O24").Value = TextBox122.Text 'Para costo de Reposicion articulos de GSI
@@ -1031,7 +1061,7 @@ Public Class Form2
         ' 2 linea de Materiales
         If TextBox5.Text <> "" Then xlibro.Range("D25").Value = TextBox5.Text 'Descripcion de Materiales
         If TextBox6.Text <> "" Then xlibro.Range("C25").Value = TextBox6.Text 'Codigo del Material
-        If NumericUpDown2.Text <> "0" And NumericUpDown2.Text <> "" Then xlibro.Range("H25").Value = NumericUpDown2.Text 'Cantidad del Material
+        xlibro.Range("H25").Value = If(NumericUpDown2.Value = 0, "", NumericUpDown2.Value) ' Cantidad Material
         If TextBox42.Text <> "" Then xlibro.Range("M25").Value = TextBox42.Text 'Costo de Defontana
         If TextBox7.Text <> "" Then xlibro.Range("N25").Value = TextBox7.Text 'Margen (%)
         If TextBox123.Text <> "" Then xlibro.Range("O25").Value = TextBox123.Text 'Para costo de Reposicion articulos de GSI
@@ -1039,7 +1069,7 @@ Public Class Form2
         ' 3 linea de Materiales
         If TextBox9.Text <> "" Then xlibro.Range("D26").Value = TextBox9.Text 'Descripcion de Materiales
         If TextBox10.Text <> "" Then xlibro.Range("C26").Value = TextBox10.Text 'Codigo del Material
-        If NumericUpDown3.Text <> "0" And NumericUpDown3.Text <> "" Then xlibro.Range("H26").Value = NumericUpDown3.Text 'Cantidad del Material
+        xlibro.Range("H26").Value = If(NumericUpDown3.Value = 0, "", NumericUpDown3.Value) ' Cantidad Material
         If TextBox43.Text <> "" Then xlibro.Range("M26").Value = TextBox43.Text 'Costo de Defontana
         If TextBox11.Text <> "" Then xlibro.Range("N26").Value = TextBox11.Text 'Margen (%)
         If TextBox124.Text <> "" Then xlibro.Range("O26").Value = TextBox124.Text 'Para costo de Reposicion articulos de GSI
@@ -1047,7 +1077,7 @@ Public Class Form2
         ' 4 linea de Materiales
         If TextBox13.Text <> "" Then xlibro.Range("D27").Value = TextBox13.Text 'Descripcion de Materiales
         If TextBox14.Text <> "" Then xlibro.Range("C27").Value = TextBox14.Text 'Codigo del Material
-        If NumericUpDown4.Text <> "0" And NumericUpDown4.Text <> "" Then xlibro.Range("H27").Value = NumericUpDown4.Text 'Cantidad del Material
+        xlibro.Range("H27").Value = If(NumericUpDown4.Value = 0, "", NumericUpDown4.Value) ' Cantidad Material
         If TextBox44.Text <> "" Then xlibro.Range("M27").Value = TextBox44.Text 'Costo de Defontana
         If TextBox15.Text <> "" Then xlibro.Range("N27").Value = TextBox15.Text 'Margen (%)
         If TextBox125.Text <> "" Then xlibro.Range("O27").Value = TextBox125.Text 'Para costo de Reposicion articulos de GSI
@@ -1055,7 +1085,7 @@ Public Class Form2
         ' 5 linea de Materiales
         If TextBox17.Text <> "" Then xlibro.Range("D28").Value = TextBox17.Text 'Descripcion de Materiales
         If TextBox18.Text <> "" Then xlibro.Range("C28").Value = TextBox18.Text 'Codigo del Material
-        If NumericUpDown5.Text <> "0" And NumericUpDown5.Text <> "" Then xlibro.Range("H28").Value = NumericUpDown5.Text 'Cantidad del Material
+        xlibro.Range("H28").Value = If(NumericUpDown5.Value = 0, "", NumericUpDown5.Value) ' Cantidad Material
         If TextBox45.Text <> "" Then xlibro.Range("M28").Value = TextBox45.Text 'Costo de Defontana
         If TextBox19.Text <> "" Then xlibro.Range("N28").Value = TextBox19.Text 'Margen (%)
         If TextBox126.Text <> "" Then xlibro.Range("O28").Value = TextBox126.Text 'Para costo de Reposicion articulos de GSI
@@ -1063,7 +1093,7 @@ Public Class Form2
         ' 6 linea de Materiales
         If TextBox21.Text <> "" Then xlibro.Range("D29").Value = TextBox21.Text 'Descripcion de Materiales
         If TextBox22.Text <> "" Then xlibro.Range("C29").Value = TextBox22.Text 'Codigo del Material
-        If NumericUpDown6.Text <> "0" And NumericUpDown6.Text <> "" Then xlibro.Range("H29").Value = NumericUpDown6.Text 'Cantidad del Material
+        xlibro.Range("H29").Value = If(NumericUpDown6.Value = 0, "", NumericUpDown6.Value) ' Cantidad Material
         If TextBox46.Text <> "" Then xlibro.Range("M29").Value = TextBox46.Text 'Costo de Defontana
         If TextBox23.Text <> "" Then xlibro.Range("N29").Value = TextBox23.Text 'Margen (%)
         If TextBox127.Text <> "" Then xlibro.Range("O29").Value = TextBox127.Text 'Para costo de Reposicion articulos de GSI
@@ -1071,7 +1101,7 @@ Public Class Form2
         ' 7 linea de Materiales
         If TextBox25.Text <> "" Then xlibro.Range("D30").Value = TextBox25.Text 'Descripcion de Materiales
         If TextBox26.Text <> "" Then xlibro.Range("C30").Value = TextBox26.Text 'Codigo del Material
-        If NumericUpDown7.Text <> "0" And NumericUpDown7.Text <> "" Then xlibro.Range("H30").Value = NumericUpDown7.Text 'Cantidad del Material
+        xlibro.Range("H30").Value = If(NumericUpDown7.Value = 0, "", NumericUpDown7.Value) ' Cantidad Material
         If TextBox47.Text <> "" Then xlibro.Range("M30").Value = TextBox47.Text 'Costo de Defontana
         If TextBox27.Text <> "" Then xlibro.Range("N30").Value = TextBox27.Text 'Margen (%)
         If TextBox128.Text <> "" Then xlibro.Range("O30").Value = TextBox128.Text 'Para costo de Reposicion articulos de GSI
@@ -1079,7 +1109,7 @@ Public Class Form2
         ' 8 Linea de Materiles
         If TextBox29.Text <> "" Then xlibro.Range("D31").Value = TextBox29.Text 'Descripcion de Materiales
         If TextBox30.Text <> "" Then xlibro.Range("C31").Value = TextBox30.Text 'Codigo del Material
-        If NumericUpDown8.Text <> "0" And NumericUpDown8.Text <> "" Then xlibro.Range("H31").Value = NumericUpDown8.Text 'Cantidad del Material
+        xlibro.Range("H31").Value = If(NumericUpDown8.Value = 0, "", NumericUpDown8.Value) ' Cantidad Material
         If TextBox48.Text <> "" Then xlibro.Range("M31").Value = TextBox48.Text 'Costo de Defontana
         If TextBox31.Text <> "" Then xlibro.Range("N31").Value = TextBox31.Text 'Margen (%)
         If TextBox129.Text <> "" Then xlibro.Range("O31").Value = TextBox129.Text 'Para costo de Reposicion articulos de GSI
@@ -1087,7 +1117,7 @@ Public Class Form2
         ' 9 linea de Materiales
         If TextBox33.Text <> "" Then xlibro.Range("D32").Value = TextBox33.Text 'Descripcion de Materiales
         If TextBox34.Text <> "" Then xlibro.Range("C32").Value = TextBox34.Text 'Codigo del Material
-        If NumericUpDown9.Text <> "0" And NumericUpDown9.Text <> "" Then xlibro.Range("H32").Value = NumericUpDown9.Text 'Cantidad del Material
+        xlibro.Range("H32").Value = If(NumericUpDown9.Value = 0, "", NumericUpDown9.Value) ' Cantidad Material
         If TextBox49.Text <> "" Then xlibro.Range("M32").Value = TextBox49.Text 'Costo de Defontana
         If TextBox35.Text <> "" Then xlibro.Range("N32").Value = TextBox35.Text 'Margen (%)
         If TextBox130.Text <> "" Then xlibro.Range("O32").Value = TextBox130.Text 'Para costo de Reposicion articulos de GSI
@@ -1095,7 +1125,7 @@ Public Class Form2
         ' 10 Linea de Materiales
         If TextBox37.Text <> "" Then xlibro.Range("D33").Value = TextBox37.Text 'Descripcion de Materiales
         If TextBox38.Text <> "" Then xlibro.Range("C33").Value = TextBox38.Text 'Codigo del Material
-        If NumericUpDown10.Text <> "0" And NumericUpDown10.Text <> "" Then xlibro.Range("H33").Value = NumericUpDown10.Text 'Cantidad del Material
+        xlibro.Range("H33").Value = If(NumericUpDown10.Value = 0, "", NumericUpDown10.Value) ' Cantidad Material
         If TextBox50.Text <> "" Then xlibro.Range("M33").Value = TextBox50.Text 'Costo de Defontana
         If TextBox39.Text <> "" Then xlibro.Range("N33").Value = TextBox39.Text 'Margen (%)
         If TextBox131.Text <> "" Then xlibro.Range("O33").Value = TextBox131.Text 'Para costo de Reposicion articulos de GSI
@@ -1103,7 +1133,7 @@ Public Class Form2
         ' 11 Linea de Materiales
         If TextBox62.Text <> "" Then xlibro.Range("D34").Value = TextBox62.Text 'Descripcion de Materiales
         If TextBox63.Text <> "" Then xlibro.Range("C34").Value = TextBox63.Text 'Codigo del Material
-        If NumericUpDown11.Text <> "0" And NumericUpDown11.Text <> "" Then xlibro.Range("H34").Value = NumericUpDown11.Text 'Cantidad del Material
+        xlibro.Range("H34").Value = If(NumericUpDown11.Value = 0, "", NumericUpDown11.Value) ' Cantidad Material
         If TextBox102.Text <> "" Then xlibro.Range("M34").Value = TextBox102.Text 'Costo de Defontana
         If TextBox64.Text <> "" Then xlibro.Range("N34").Value = TextBox64.Text 'Margen (%)
         If TextBox132.Text <> "" Then xlibro.Range("O34").Value = TextBox132.Text 'Para costo de Reposicion articulos de GSI
@@ -1111,7 +1141,7 @@ Public Class Form2
         ' 12 Linea de Materiales
         If TextBox66.Text <> "" Then xlibro.Range("D35").Value = TextBox66.Text 'Descripcion de Materiales
         If TextBox67.Text <> "" Then xlibro.Range("C35").Value = TextBox67.Text 'Codigo del Material
-        If NumericUpDown12.Text <> "0" And NumericUpDown12.Text <> "" Then xlibro.Range("H35").Value = NumericUpDown12.Text 'Cantidad del Material
+        xlibro.Range("H35").Value = If(NumericUpDown12.Value = 0, "", NumericUpDown12.Value) ' Cantidad Material
         If TextBox103.Text <> "" Then xlibro.Range("M35").Value = TextBox103.Text 'Costo de Defontana
         If TextBox68.Text <> "" Then xlibro.Range("N35").Value = TextBox68.Text 'Margen (%)
         If TextBox133.Text <> "" Then xlibro.Range("O35").Value = TextBox133.Text 'Para costo de Reposicion articulos de GSI
@@ -1119,7 +1149,7 @@ Public Class Form2
         ' 13 Linea de Materiales
         If TextBox70.Text <> "" Then xlibro.Range("D36").Value = TextBox70.Text 'Descripcion de Materiales
         If TextBox71.Text <> "" Then xlibro.Range("C36").Value = TextBox71.Text 'Codigo del Material
-        If NumericUpDown13.Text <> "0" And NumericUpDown13.Text <> "" Then xlibro.Range("H36").Value = NumericUpDown13.Text 'Cantidad del Material
+        xlibro.Range("H36").Value = If(NumericUpDown13.Value = 0, "", NumericUpDown13.Value) ' Cantidad Material
         If TextBox104.Text <> "" Then xlibro.Range("M36").Value = TextBox104.Text 'Costo de Defontana
         If TextBox72.Text <> "" Then xlibro.Range("N36").Value = TextBox72.Text 'Margen (%)
         If TextBox134.Text <> "" Then xlibro.Range("O36").Value = TextBox134.Text 'Para costo de Reposicion articulos de GSI
@@ -1127,7 +1157,7 @@ Public Class Form2
         ' 14 Linea de Materiales
         If TextBox74.Text <> "" Then xlibro.Range("D37").Value = TextBox74.Text 'Descripcion de Materiales
         If TextBox75.Text <> "" Then xlibro.Range("C37").Value = TextBox75.Text 'Codigo del Material
-        If NumericUpDown14.Text <> "0" And NumericUpDown14.Text <> "" Then xlibro.Range("H37").Value = NumericUpDown14.Text 'Cantidad del Material
+        xlibro.Range("H37").Value = If(NumericUpDown14.Value = 0, "", NumericUpDown14.Value) ' Cantidad Material
         If TextBox105.Text <> "" Then xlibro.Range("M37").Value = TextBox105.Text 'Costo de Defontana
         If TextBox76.Text <> "" Then xlibro.Range("N37").Value = TextBox76.Text 'Margen (%)
         If TextBox135.Text <> "" Then xlibro.Range("O37").Value = TextBox135.Text 'Para costo de Reposicion articulos de GSI
@@ -1135,7 +1165,7 @@ Public Class Form2
         ' 15 Linea de Materiales
         If TextBox78.Text <> "" Then xlibro.Range("D38").Value = TextBox78.Text 'Descripcion de Materiales
         If TextBox79.Text <> "" Then xlibro.Range("C38").Value = TextBox79.Text 'Codigo del Material
-        If NumericUpDown15.Text <> "0" And NumericUpDown15.Text <> "" Then xlibro.Range("H38").Value = NumericUpDown15.Text 'Cantidad del Material
+        xlibro.Range("H38").Value = If(NumericUpDown15.Value = 0, "", NumericUpDown15.Value) ' Cantidad Material
         If TextBox106.Text <> "" Then xlibro.Range("M38").Value = TextBox106.Text 'Costo de Defontana
         If TextBox80.Text <> "" Then xlibro.Range("N38").Value = TextBox80.Text 'Margen (%)
         If TextBox136.Text <> "" Then xlibro.Range("O38").Value = TextBox136.Text 'Para costo de Reposicion articulos de GSI
@@ -1143,7 +1173,7 @@ Public Class Form2
         ' 16 Linea de Materiales
         If TextBox82.Text <> "" Then xlibro.Range("D39").Value = TextBox82.Text 'Descripcion de Materiales
         If TextBox83.Text <> "" Then xlibro.Range("C39").Value = TextBox83.Text 'Codigo del Material
-        If NumericUpDown16.Text <> "0" And NumericUpDown16.Text <> "" Then xlibro.Range("H39").Value = NumericUpDown16.Text 'Cantidad del Material
+        xlibro.Range("H39").Value = If(NumericUpDown16.Value = 0, "", NumericUpDown16.Value) ' Cantidad Material
         If TextBox107.Text <> "" Then xlibro.Range("M39").Value = TextBox107.Text 'Costo de Defontana
         If TextBox84.Text <> "" Then xlibro.Range("N39").Value = TextBox84.Text 'Margen (%)
         If TextBox137.Text <> "" Then xlibro.Range("O39").Value = TextBox137.Text 'Para costo de Reposicion articulos de GSI
@@ -1151,7 +1181,7 @@ Public Class Form2
         ' 17 Linea de Materiales
         If TextBox86.Text <> "" Then xlibro.Range("D40").Value = TextBox86.Text 'Descripcion de Materiales
         If TextBox87.Text <> "" Then xlibro.Range("C40").Value = TextBox87.Text 'Codigo del Material
-        If NumericUpDown17.Text <> "0" And NumericUpDown17.Text <> "" Then xlibro.Range("H40").Value = NumericUpDown17.Text 'Cantidad del Material
+        xlibro.Range("H40").Value = If(NumericUpDown17.Value = 0, "", NumericUpDown17.Value) ' Cantidad Material
         If TextBox108.Text <> "" Then xlibro.Range("M40").Value = TextBox108.Text 'Costo de Defontana
         If TextBox88.Text <> "" Then xlibro.Range("N40").Value = TextBox88.Text 'Margen (%)
         If TextBox138.Text <> "" Then xlibro.Range("O40").Value = TextBox138.Text 'Para costo de Reposicion articulos de GSI
@@ -1159,7 +1189,7 @@ Public Class Form2
         ' 18 Linea de Materiales
         If TextBox90.Text <> "" Then xlibro.Range("D41").Value = TextBox90.Text 'Descripcion de Materiales
         If TextBox91.Text <> "" Then xlibro.Range("C41").Value = TextBox91.Text 'Codigo del Material
-        If NumericUpDown18.Text <> "0" And NumericUpDown18.Text <> "" Then xlibro.Range("H41").Value = NumericUpDown18.Text 'Cantidad del Material
+        xlibro.Range("H41").Value = If(NumericUpDown18.Value = 0, "", NumericUpDown18.Value) ' Cantidad Material
         If TextBox109.Text <> "" Then xlibro.Range("M41").Value = TextBox109.Text 'Costo de Defontana
         If TextBox92.Text <> "" Then xlibro.Range("N41").Value = TextBox92.Text 'Margen (%)
         If TextBox139.Text <> "" Then xlibro.Range("O41").Value = TextBox139.Text 'Para costo de Reposicion articulos de GSI
@@ -1167,7 +1197,7 @@ Public Class Form2
         ' 19 Linea de Materiales
         If TextBox94.Text <> "" Then xlibro.Range("D42").Value = TextBox94.Text 'Descripcion de Materiales
         If TextBox95.Text <> "" Then xlibro.Range("C42").Value = TextBox95.Text 'Codigo del Material
-        If NumericUpDown19.Text <> "0" And NumericUpDown19.Text <> "" Then xlibro.Range("H42").Value = NumericUpDown19.Text 'Cantidad del Material
+        xlibro.Range("H42").Value = If(NumericUpDown19.Value = 0, "", NumericUpDown19.Value) ' Cantidad Material
         If TextBox110.Text <> "" Then xlibro.Range("M42").Value = TextBox110.Text 'Costo de Defontana
         If TextBox96.Text <> "" Then xlibro.Range("N42").Value = TextBox96.Text 'Margen (%)
         If TextBox140.Text <> "" Then xlibro.Range("O42").Value = TextBox140.Text 'Para costo de Reposicion articulos de GSI
@@ -1175,7 +1205,7 @@ Public Class Form2
         '20 Linea de Materiales
         If TextBox98.Text <> "" Then xlibro.Range("D43").Value = TextBox98.Text 'Descripcion de Materiales
         If TextBox99.Text <> "" Then xlibro.Range("C43").Value = TextBox99.Text 'Codigo del Material
-        If NumericUpDown20.Text <> "0" And NumericUpDown20.Text <> "" Then xlibro.Range("H43").Value = NumericUpDown20.Text 'Cantidad del Material
+        xlibro.Range("H43").Value = If(NumericUpDown20.Value = 0, "", NumericUpDown20.Value) ' Cantidad Material
         If TextBox111.Text <> "" Then xlibro.Range("M43").Value = TextBox111.Text 'Costo de Defontana
         If TextBox100.Text <> "" Then xlibro.Range("N43").Value = TextBox100.Text 'Margen (%)
         If TextBox141.Text <> "" Then xlibro.Range("O43").Value = TextBox141.Text 'Para costo de Reposicion articulos de GSI
@@ -1227,7 +1257,7 @@ Public Class Form2
         ' Para primera linea activa de Materiales
         If TextBox1.Text <> "" Then xlibro.Range("D24").Value = TextBox1.Text 'Descripcion de Materiales
         If TextBox2.Text <> "" Then xlibro.Range("C24").Value = TextBox2.Text 'Codigo del Material
-        If NumericUpDown1.Text <> "0" And NumericUpDown1.Text <> "" Then xlibro.Range("H24").Value = NumericUpDown1.Text 'Cantidad del Material
+        xlibro.Range("H24").Value = If(NumericUpDown1.Value = 0, "", NumericUpDown1.Value) ' Cantidad Material
         If TextBox41.Text <> "" Then xlibro.Range("M24").Value = TextBox41.Text 'Costo de Defontana
         If TextBox3.Text <> "" Then xlibro.Range("N24").Value = TextBox3.Text 'Margen (%)
         If TextBox122.Text <> "" Then xlibro.Range("O24").Value = TextBox122.Text 'Para costo de Reposicion articulos de GSI
@@ -1235,7 +1265,7 @@ Public Class Form2
         ' 2 linea de Materiales
         If TextBox5.Text <> "" Then xlibro.Range("D25").Value = TextBox5.Text 'Descripcion de Materiales
         If TextBox6.Text <> "" Then xlibro.Range("C25").Value = TextBox6.Text 'Codigo del Material
-        If NumericUpDown2.Text <> "0" And NumericUpDown2.Text <> "" Then xlibro.Range("H25").Value = NumericUpDown2.Text 'Cantidad del Material
+        xlibro.Range("H25").Value = If(NumericUpDown2.Value = 0, "", NumericUpDown2.Value) ' Cantidad Material
         If TextBox42.Text <> "" Then xlibro.Range("M25").Value = TextBox42.Text 'Costo de Defontana
         If TextBox7.Text <> "" Then xlibro.Range("N25").Value = TextBox7.Text 'Margen (%)
         If TextBox123.Text <> "" Then xlibro.Range("O25").Value = TextBox123.Text 'Para costo de Reposicion articulos de GSI
@@ -1243,7 +1273,7 @@ Public Class Form2
         ' 3 linea de Materiales
         If TextBox9.Text <> "" Then xlibro.Range("D26").Value = TextBox9.Text 'Descripcion de Materiales
         If TextBox10.Text <> "" Then xlibro.Range("C26").Value = TextBox10.Text 'Codigo del Material
-        If NumericUpDown3.Text <> "0" And NumericUpDown3.Text <> "" Then xlibro.Range("H26").Value = NumericUpDown3.Text 'Cantidad del Material
+        xlibro.Range("H26").Value = If(NumericUpDown3.Value = 0, "", NumericUpDown3.Value) ' Cantidad Material
         If TextBox43.Text <> "" Then xlibro.Range("M26").Value = TextBox43.Text 'Costo de Defontana
         If TextBox11.Text <> "" Then xlibro.Range("N26").Value = TextBox11.Text 'Margen (%)
         If TextBox124.Text <> "" Then xlibro.Range("O26").Value = TextBox124.Text 'Para costo de Reposicion articulos de GSI
@@ -1251,7 +1281,7 @@ Public Class Form2
         ' 4 linea de Materiales
         If TextBox13.Text <> "" Then xlibro.Range("D27").Value = TextBox13.Text 'Descripcion de Materiales
         If TextBox14.Text <> "" Then xlibro.Range("C27").Value = TextBox14.Text 'Codigo del Material
-        If NumericUpDown4.Text <> "0" And NumericUpDown4.Text <> "" Then xlibro.Range("H27").Value = NumericUpDown4.Text 'Cantidad del Material
+        xlibro.Range("H27").Value = If(NumericUpDown4.Value = 0, "", NumericUpDown4.Value) ' Cantidad Material
         If TextBox44.Text <> "" Then xlibro.Range("M27").Value = TextBox44.Text 'Costo de Defontana
         If TextBox15.Text <> "" Then xlibro.Range("N27").Value = TextBox15.Text 'Margen (%)
         If TextBox125.Text <> "" Then xlibro.Range("O27").Value = TextBox125.Text 'Para costo de Reposicion articulos de GSI
@@ -1259,7 +1289,7 @@ Public Class Form2
         ' 5 linea de Materiales
         If TextBox17.Text <> "" Then xlibro.Range("D28").Value = TextBox17.Text 'Descripcion de Materiales
         If TextBox18.Text <> "" Then xlibro.Range("C28").Value = TextBox18.Text 'Codigo del Material
-        If NumericUpDown5.Text <> "0" And NumericUpDown5.Text <> "" Then xlibro.Range("H28").Value = NumericUpDown5.Text 'Cantidad del Material
+        xlibro.Range("H28").Value = If(NumericUpDown5.Value = 0, "", NumericUpDown5.Value) ' Cantidad Material
         If TextBox45.Text <> "" Then xlibro.Range("M28").Value = TextBox45.Text 'Costo de Defontana
         If TextBox19.Text <> "" Then xlibro.Range("N28").Value = TextBox19.Text 'Margen (%)
         If TextBox126.Text <> "" Then xlibro.Range("O28").Value = TextBox126.Text 'Para costo de Reposicion articulos de GSI
@@ -1267,7 +1297,7 @@ Public Class Form2
         ' 6 linea de Materiales
         If TextBox21.Text <> "" Then xlibro.Range("D29").Value = TextBox21.Text 'Descripcion de Materiales
         If TextBox22.Text <> "" Then xlibro.Range("C29").Value = TextBox22.Text 'Codigo del Material
-        If NumericUpDown6.Text <> "0" And NumericUpDown6.Text <> "" Then xlibro.Range("H29").Value = NumericUpDown6.Text 'Cantidad del Material
+        xlibro.Range("H29").Value = If(NumericUpDown6.Value = 0, "", NumericUpDown6.Value) ' Cantidad Material
         If TextBox46.Text <> "" Then xlibro.Range("M29").Value = TextBox46.Text 'Costo de Defontana
         If TextBox23.Text <> "" Then xlibro.Range("N29").Value = TextBox23.Text 'Margen (%)
         If TextBox127.Text <> "" Then xlibro.Range("O29").Value = TextBox127.Text 'Para costo de Reposicion articulos de GSI
@@ -1275,7 +1305,7 @@ Public Class Form2
         ' 7 linea de Materiales
         If TextBox25.Text <> "" Then xlibro.Range("D30").Value = TextBox25.Text 'Descripcion de Materiales
         If TextBox26.Text <> "" Then xlibro.Range("C30").Value = TextBox26.Text 'Codigo del Material
-        If NumericUpDown7.Text <> "0" And NumericUpDown7.Text <> "" Then xlibro.Range("H30").Value = NumericUpDown7.Text 'Cantidad del Material
+        xlibro.Range("H30").Value = If(NumericUpDown7.Value = 0, "", NumericUpDown7.Value) ' Cantidad Material
         If TextBox47.Text <> "" Then xlibro.Range("M30").Value = TextBox47.Text 'Costo de Defontana
         If TextBox27.Text <> "" Then xlibro.Range("N30").Value = TextBox27.Text 'Margen (%)
         If TextBox128.Text <> "" Then xlibro.Range("O30").Value = TextBox128.Text 'Para costo de Reposicion articulos de GSI
@@ -1283,7 +1313,7 @@ Public Class Form2
         ' 8 Linea de Materiales
         If TextBox29.Text <> "" Then xlibro.Range("D31").Value = TextBox29.Text 'Descripcion de Materiales
         If TextBox30.Text <> "" Then xlibro.Range("C31").Value = TextBox30.Text 'Codigo del Material
-        If NumericUpDown8.Text <> "0" And NumericUpDown8.Text <> "" Then xlibro.Range("H31").Value = NumericUpDown8.Text 'Cantidad del Material
+        xlibro.Range("H31").Value = If(NumericUpDown8.Value = 0, "", NumericUpDown8.Value) ' Cantidad Material
         If TextBox48.Text <> "" Then xlibro.Range("M31").Value = TextBox48.Text 'Costo de Defontana
         If TextBox31.Text <> "" Then xlibro.Range("N31").Value = TextBox31.Text 'Margen (%)
         If TextBox129.Text <> "" Then xlibro.Range("O31").Value = TextBox129.Text 'Para costo de Reposicion articulos de GSI
@@ -1291,7 +1321,7 @@ Public Class Form2
         ' 9 linea de Materiales
         If TextBox33.Text <> "" Then xlibro.Range("D32").Value = TextBox33.Text 'Descripcion de Materiales
         If TextBox34.Text <> "" Then xlibro.Range("C32").Value = TextBox34.Text 'Codigo del Material
-        If NumericUpDown9.Text <> "0" And NumericUpDown9.Text <> "" Then xlibro.Range("H32").Value = NumericUpDown9.Text 'Cantidad del Material
+        xlibro.Range("H32").Value = If(NumericUpDown9.Value = 0, "", NumericUpDown9.Value) ' Cantidad Material
         If TextBox49.Text <> "" Then xlibro.Range("M32").Value = TextBox49.Text 'Costo de Defontana
         If TextBox35.Text <> "" Then xlibro.Range("N32").Value = TextBox35.Text 'Margen (%)
         If TextBox130.Text <> "" Then xlibro.Range("O32").Value = TextBox130.Text 'Para costo de Reposicion articulos de GSI
@@ -1299,7 +1329,7 @@ Public Class Form2
         ' 10 Linea de Materiales
         If TextBox37.Text <> "" Then xlibro.Range("D33").Value = TextBox37.Text 'Descripcion de Materiales
         If TextBox38.Text <> "" Then xlibro.Range("C33").Value = TextBox38.Text 'Codigo del Material
-        If NumericUpDown10.Text <> "0" And NumericUpDown10.Text <> "" Then xlibro.Range("H33").Value = NumericUpDown10.Text 'Cantidad del Material
+        xlibro.Range("H33").Value = If(NumericUpDown10.Value = 0, "", NumericUpDown10.Value) ' Cantidad Material
         If TextBox50.Text <> "" Then xlibro.Range("M33").Value = TextBox50.Text 'Costo de Defontana
         If TextBox39.Text <> "" Then xlibro.Range("N33").Value = TextBox39.Text 'Margen (%)
         If TextBox131.Text <> "" Then xlibro.Range("O33").Value = TextBox131.Text 'Para costo de Reposicion articulos de GSI
@@ -1307,7 +1337,7 @@ Public Class Form2
         ' 11 Linea de Materiales
         If TextBox62.Text <> "" Then xlibro.Range("D34").Value = TextBox62.Text 'Descripcion de Materiales
         If TextBox63.Text <> "" Then xlibro.Range("C34").Value = TextBox63.Text 'Codigo del Material
-        If NumericUpDown11.Text <> "0" And NumericUpDown11.Text <> "" Then xlibro.Range("H34").Value = NumericUpDown11.Text 'Cantidad del Material
+        xlibro.Range("H34").Value = If(NumericUpDown11.Value = 0, "", NumericUpDown11.Value) ' Cantidad Material
         If TextBox102.Text <> "" Then xlibro.Range("M34").Value = TextBox102.Text 'Costo de Defontana
         If TextBox64.Text <> "" Then xlibro.Range("N34").Value = TextBox64.Text 'Margen (%)
         If TextBox132.Text <> "" Then xlibro.Range("O34").Value = TextBox132.Text 'Para costo de Reposicion articulos de GSI
@@ -1315,7 +1345,7 @@ Public Class Form2
         ' 12 Linea de Materiales
         If TextBox66.Text <> "" Then xlibro.Range("D35").Value = TextBox66.Text 'Descripcion de Materiales
         If TextBox67.Text <> "" Then xlibro.Range("C35").Value = TextBox67.Text 'Codigo del Material
-        If NumericUpDown12.Text <> "0" And NumericUpDown12.Text <> "" Then xlibro.Range("H35").Value = NumericUpDown12.Text 'Cantidad del Material
+        xlibro.Range("H35").Value = If(NumericUpDown12.Value = 0, "", NumericUpDown12.Value) ' Cantidad Material
         If TextBox103.Text <> "" Then xlibro.Range("M35").Value = TextBox103.Text 'Costo de Defontana
         If TextBox68.Text <> "" Then xlibro.Range("N35").Value = TextBox68.Text 'Margen (%)
         If TextBox133.Text <> "" Then xlibro.Range("O35").Value = TextBox133.Text 'Para costo de Reposicion articulos de GSI
@@ -1323,7 +1353,7 @@ Public Class Form2
         ' 13 Linea de Materiales
         If TextBox70.Text <> "" Then xlibro.Range("D36").Value = TextBox70.Text 'Descripcion de Materiales
         If TextBox71.Text <> "" Then xlibro.Range("C36").Value = TextBox71.Text 'Codigo del Material
-        If NumericUpDown13.Text <> "0" And NumericUpDown13.Text <> "" Then xlibro.Range("H36").Value = NumericUpDown13.Text 'Cantidad del Material
+        xlibro.Range("H36").Value = If(NumericUpDown13.Value = 0, "", NumericUpDown13.Value) ' Cantidad Material
         If TextBox104.Text <> "" Then xlibro.Range("M36").Value = TextBox104.Text 'Costo de Defontana
         If TextBox72.Text <> "" Then xlibro.Range("N36").Value = TextBox72.Text 'Margen (%)
         If TextBox134.Text <> "" Then xlibro.Range("O36").Value = TextBox134.Text 'Para costo de Reposicion articulos de GSI
@@ -1331,7 +1361,7 @@ Public Class Form2
         ' 14 Linea de Materiales
         If TextBox74.Text <> "" Then xlibro.Range("D37").Value = TextBox74.Text 'Descripcion de Materiales
         If TextBox75.Text <> "" Then xlibro.Range("C37").Value = TextBox75.Text 'Codigo del Material
-        If NumericUpDown14.Text <> "0" And NumericUpDown14.Text <> "" Then xlibro.Range("H37").Value = NumericUpDown14.Text 'Cantidad del Material
+        xlibro.Range("H37").Value = If(NumericUpDown14.Value = 0, "", NumericUpDown14.Value) ' Cantidad Material
         If TextBox105.Text <> "" Then xlibro.Range("M37").Value = TextBox105.Text 'Costo de Defontana
         If TextBox76.Text <> "" Then xlibro.Range("N37").Value = TextBox76.Text 'Margen (%)
         If TextBox135.Text <> "" Then xlibro.Range("O37").Value = TextBox135.Text 'Para costo de Reposicion articulos de GSI
@@ -1339,7 +1369,7 @@ Public Class Form2
         ' 15 Linea de Materiales
         If TextBox78.Text <> "" Then xlibro.Range("D38").Value = TextBox78.Text 'Descripcion de Materiales
         If TextBox79.Text <> "" Then xlibro.Range("C38").Value = TextBox79.Text 'Codigo del Material
-        If NumericUpDown15.Text <> "0" And NumericUpDown15.Text <> "" Then xlibro.Range("H38").Value = NumericUpDown15.Text 'Cantidad del Material
+        xlibro.Range("H38").Value = If(NumericUpDown15.Value = 0, "", NumericUpDown15.Value) ' Cantidad Material
         If TextBox106.Text <> "" Then xlibro.Range("M38").Value = TextBox106.Text 'Costo de Defontana
         If TextBox80.Text <> "" Then xlibro.Range("N38").Value = TextBox80.Text 'Margen (%)
         If TextBox136.Text <> "" Then xlibro.Range("O38").Value = TextBox136.Text 'Para costo de Reposicion articulos de GSI
@@ -1347,7 +1377,7 @@ Public Class Form2
         ' 16 Linea de Materiales
         If TextBox82.Text <> "" Then xlibro.Range("D39").Value = TextBox82.Text 'Descripcion de Materiales
         If TextBox83.Text <> "" Then xlibro.Range("C39").Value = TextBox83.Text 'Codigo del Material
-        If NumericUpDown16.Text <> "0" And NumericUpDown16.Text <> "" Then xlibro.Range("H39").Value = NumericUpDown16.Text 'Cantidad del Material
+        xlibro.Range("H39").Value = If(NumericUpDown16.Value = 0, "", NumericUpDown16.Value) ' Cantidad Material
         If TextBox107.Text <> "" Then xlibro.Range("M39").Value = TextBox107.Text 'Costo de Defontana
         If TextBox84.Text <> "" Then xlibro.Range("N39").Value = TextBox84.Text 'Margen (%)
         If TextBox137.Text <> "" Then xlibro.Range("O39").Value = TextBox137.Text 'Para costo de Reposicion articulos de GSI
@@ -1355,7 +1385,7 @@ Public Class Form2
         ' 17 Linea de Materiales
         If TextBox86.Text <> "" Then xlibro.Range("D40").Value = TextBox86.Text 'Descripcion de Materiales
         If TextBox87.Text <> "" Then xlibro.Range("C40").Value = TextBox87.Text 'Codigo del Material
-        If NumericUpDown17.Text <> "0" And NumericUpDown17.Text <> "" Then xlibro.Range("H40").Value = NumericUpDown17.Text 'Cantidad del Material
+        xlibro.Range("H40").Value = If(NumericUpDown17.Value = 0, "", NumericUpDown17.Value) ' Cantidad Material
         If TextBox108.Text <> "" Then xlibro.Range("M40").Value = TextBox108.Text 'Costo de Defontana
         If TextBox88.Text <> "" Then xlibro.Range("N40").Value = TextBox88.Text 'Margen (%)
         If TextBox138.Text <> "" Then xlibro.Range("O40").Value = TextBox138.Text 'Para costo de Reposicion articulos de GSI
@@ -1363,7 +1393,7 @@ Public Class Form2
         ' 18 Linea de Materiales
         If TextBox90.Text <> "" Then xlibro.Range("D41").Value = TextBox90.Text 'Descripcion de Materiales
         If TextBox91.Text <> "" Then xlibro.Range("C41").Value = TextBox91.Text 'Codigo del Material
-        If NumericUpDown18.Text <> "0" And NumericUpDown18.Text <> "" Then xlibro.Range("H41").Value = NumericUpDown18.Text 'Cantidad del Material
+        xlibro.Range("H41").Value = If(NumericUpDown18.Value = 0, "", NumericUpDown18.Value) ' Cantidad Material
         If TextBox109.Text <> "" Then xlibro.Range("M41").Value = TextBox109.Text 'Costo de Defontana
         If TextBox92.Text <> "" Then xlibro.Range("N41").Value = TextBox92.Text 'Margen (%)
         If TextBox139.Text <> "" Then xlibro.Range("O41").Value = TextBox139.Text 'Para costo de Reposicion articulos de GSI
@@ -1371,7 +1401,7 @@ Public Class Form2
         ' 19 Linea de Materiales
         If TextBox94.Text <> "" Then xlibro.Range("D42").Value = TextBox94.Text 'Descripcion de Materiales
         If TextBox95.Text <> "" Then xlibro.Range("C42").Value = TextBox95.Text 'Codigo del Material
-        If NumericUpDown19.Text <> "0" And NumericUpDown19.Text <> "" Then xlibro.Range("H42").Value = NumericUpDown19.Text 'Cantidad del Material
+        xlibro.Range("H42").Value = If(NumericUpDown19.Value = 0, "", NumericUpDown19.Value) ' Cantidad Material
         If TextBox110.Text <> "" Then xlibro.Range("M42").Value = TextBox110.Text 'Costo de Defontana
         If TextBox96.Text <> "" Then xlibro.Range("N42").Value = TextBox96.Text 'Margen (%)
         If TextBox140.Text <> "" Then xlibro.Range("O42").Value = TextBox140.Text 'Para costo de Reposicion articulos de GSI
@@ -1379,7 +1409,7 @@ Public Class Form2
         ' 20 Linea de Materiales
         If TextBox98.Text <> "" Then xlibro.Range("D43").Value = TextBox98.Text 'Descripcion de Materiales
         If TextBox99.Text <> "" Then xlibro.Range("C43").Value = TextBox99.Text 'Codigo del Material
-        If NumericUpDown20.Text <> "0" And NumericUpDown20.Text <> "" Then xlibro.Range("H43").Value = NumericUpDown20.Text 'Cantidad del Material
+        xlibro.Range("H43").Value = If(NumericUpDown20.Value = 0, "", NumericUpDown20.Value) ' Cantidad Material
         If TextBox111.Text <> "" Then xlibro.Range("M43").Value = TextBox111.Text 'Costo de Defontana
         If TextBox100.Text <> "" Then xlibro.Range("N43").Value = TextBox100.Text 'Margen (%)
         If TextBox141.Text <> "" Then xlibro.Range("O43").Value = TextBox141.Text 'Para costo de Reposicion articulos de GSI
@@ -2564,7 +2594,7 @@ Public Class Form2
         If TextBox1.Text <> "" Then xlibro.Range("D24").Value = TextBox1.Text ' Descripcion de Materiales
         If TextBox2.Text <> "" Then xlibro.Range("C24").Value = TextBox2.Text ' Codigo del Material
         If TextBox142.Text <> "" Then xlibro.Range("H24").Value = TextBox142.Text ' Codigo Cliente
-        If NumericUpDown1.Text <> "0" And NumericUpDown1.Text <> "" Then xlibro.Range("I24").Value = NumericUpDown1.Text 'Cantidad del Material
+        xlibro.Range("I24").Value = If(NumericUpDown1.Value = 0, "", NumericUpDown1.Value) ' Cantidad Material
         If TextBox41.Text <> "" Then xlibro.Range("N24").Value = TextBox41.Text ' Costo de Defontana
         If TextBox3.Text <> "" Then xlibro.Range("O24").Value = TextBox3.Text ' Margen (%)
         If TextBox122.Text <> "" Then xlibro.Range("P24").Value = TextBox122.Text ' Para costo de Reposicion articulos de GSI
@@ -2573,7 +2603,7 @@ Public Class Form2
         If TextBox5.Text <> "" Then xlibro.Range("D25").Value = TextBox5.Text ' Descripcion de Materiales
         If TextBox6.Text <> "" Then xlibro.Range("C25").Value = TextBox6.Text ' Codigo del Material
         If TextBox143.Text <> "" Then xlibro.Range("H25").Value = TextBox143.Text ' Codigo Cliente
-        If NumericUpDown2.Text <> "0" And NumericUpDown2.Text <> "" Then xlibro.Range("I25").Value = NumericUpDown2.Text 'Cantidad del Material
+        xlibro.Range("I25").Value = If(NumericUpDown2.Value = 0, "", NumericUpDown2.Value) ' Cantidad Material
         If TextBox42.Text <> "" Then xlibro.Range("N25").Value = TextBox42.Text ' Costo de Defontana
         If TextBox7.Text <> "" Then xlibro.Range("O25").Value = TextBox7.Text ' Margen (%)
         If TextBox123.Text <> "" Then xlibro.Range("P25").Value = TextBox123.Text ' Para costo de Reposicion articulos de GSI
@@ -2582,7 +2612,7 @@ Public Class Form2
         If TextBox9.Text <> "" Then xlibro.Range("D26").Value = TextBox9.Text ' Descripcion de Materiales
         If TextBox10.Text <> "" Then xlibro.Range("C26").Value = TextBox10.Text ' Codigo del Material
         If TextBox144.Text <> "" Then xlibro.Range("H26").Value = TextBox144.Text ' Codigo Cliente
-        If NumericUpDown3.Text <> "0" And NumericUpDown3.Text <> "" Then xlibro.Range("I26").Value = NumericUpDown3.Text 'Cantidad del Material
+        xlibro.Range("I26").Value = If(NumericUpDown3.Value = 0, "", NumericUpDown3.Value) ' Cantidad Material
         If TextBox43.Text <> "" Then xlibro.Range("N26").Value = TextBox43.Text ' Costo de Defontana
         If TextBox11.Text <> "" Then xlibro.Range("O26").Value = TextBox11.Text ' Margen (%)
         If TextBox124.Text <> "" Then xlibro.Range("P26").Value = TextBox124.Text ' Para costo de Reposicion articulos de GSI
@@ -2591,7 +2621,7 @@ Public Class Form2
         If TextBox13.Text <> "" Then xlibro.Range("D27").Value = TextBox13.Text ' Descripcion de Materiales
         If TextBox14.Text <> "" Then xlibro.Range("C27").Value = TextBox14.Text ' Codigo del Material
         If TextBox145.Text <> "" Then xlibro.Range("H27").Value = TextBox145.Text ' Codigo Cliente
-        If NumericUpDown4.Text <> "0" And NumericUpDown4.Text <> "" Then xlibro.Range("I27").Value = NumericUpDown4.Text 'Cantidad del Material
+        xlibro.Range("I27").Value = If(NumericUpDown4.Value = 0, "", NumericUpDown4.Value) ' Cantidad Material
         If TextBox44.Text <> "" Then xlibro.Range("N27").Value = TextBox44.Text ' Costo de Defontana
         If TextBox15.Text <> "" Then xlibro.Range("O27").Value = TextBox15.Text ' Margen (%)
         If TextBox125.Text <> "" Then xlibro.Range("P27").Value = TextBox125.Text ' Para costo de Reposicion articulos de GSI
@@ -2600,7 +2630,7 @@ Public Class Form2
         If TextBox17.Text <> "" Then xlibro.Range("D28").Value = TextBox17.Text ' Descripcion de Materiales
         If TextBox18.Text <> "" Then xlibro.Range("C28").Value = TextBox18.Text ' Codigo del Material
         If TextBox146.Text <> "" Then xlibro.Range("H28").Value = TextBox146.Text ' Codigo Cliente
-        If NumericUpDown5.Text <> "0" And NumericUpDown5.Text <> "" Then xlibro.Range("I28").Value = NumericUpDown5.Text 'Cantidad del Material
+        xlibro.Range("I28").Value = If(NumericUpDown5.Value = 0, "", NumericUpDown5.Value) ' Cantidad Material
         If TextBox45.Text <> "" Then xlibro.Range("N28").Value = TextBox45.Text ' Costo de Defontana
         If TextBox19.Text <> "" Then xlibro.Range("O28").Value = TextBox19.Text ' Margen (%)
         If TextBox126.Text <> "" Then xlibro.Range("P28").Value = TextBox126.Text ' Para costo de Reposicion articulos de GSI
@@ -2609,7 +2639,7 @@ Public Class Form2
         If TextBox21.Text <> "" Then xlibro.Range("D29").Value = TextBox21.Text ' Descripcion de Materiales
         If TextBox22.Text <> "" Then xlibro.Range("C29").Value = TextBox22.Text ' Codigo del Material
         If TextBox147.Text <> "" Then xlibro.Range("H29").Value = TextBox147.Text ' Codigo Cliente
-        If NumericUpDown6.Text <> "0" And NumericUpDown6.Text <> "" Then xlibro.Range("I29").Value = NumericUpDown6.Text 'Cantidad del Material
+        xlibro.Range("I29").Value = If(NumericUpDown6.Value = 0, "", NumericUpDown6.Value) ' Cantidad Material
         If TextBox46.Text <> "" Then xlibro.Range("N29").Value = TextBox46.Text ' Costo de Defontana
         If TextBox23.Text <> "" Then xlibro.Range("O29").Value = TextBox23.Text ' Margen (%)
         If TextBox127.Text <> "" Then xlibro.Range("P29").Value = TextBox127.Text ' Para costo de Reposicion articulos de GSI
@@ -2618,7 +2648,7 @@ Public Class Form2
         If TextBox25.Text <> "" Then xlibro.Range("D30").Value = TextBox25.Text ' Descripcion de Materiales
         If TextBox26.Text <> "" Then xlibro.Range("C30").Value = TextBox26.Text ' Codigo del Material
         If TextBox148.Text <> "" Then xlibro.Range("H30").Value = TextBox148.Text ' Codigo Cliente
-        If NumericUpDown7.Text <> "0" And NumericUpDown7.Text <> "" Then xlibro.Range("I30").Value = NumericUpDown7.Text 'Cantidad del Material
+        xlibro.Range("I30").Value = If(NumericUpDown7.Value = 0, "", NumericUpDown7.Value) ' Cantidad Material
         If TextBox47.Text <> "" Then xlibro.Range("N30").Value = TextBox47.Text ' Costo de Defontana
         If TextBox27.Text <> "" Then xlibro.Range("O30").Value = TextBox27.Text ' Margen (%)
         If TextBox128.Text <> "" Then xlibro.Range("P30").Value = TextBox128.Text ' Para costo de Reposicion articulos de GSI
@@ -2627,7 +2657,7 @@ Public Class Form2
         If TextBox29.Text <> "" Then xlibro.Range("D31").Value = TextBox29.Text ' Descripcion de Materiales
         If TextBox30.Text <> "" Then xlibro.Range("C31").Value = TextBox30.Text ' Codigo del Material
         If TextBox149.Text <> "" Then xlibro.Range("H31").Value = TextBox149.Text ' Codigo Cliente
-        If NumericUpDown8.Text <> "0" And NumericUpDown8.Text <> "" Then xlibro.Range("I31").Value = NumericUpDown8.Text 'Cantidad del Material
+        xlibro.Range("I31").Value = If(NumericUpDown8.Value = 0, "", NumericUpDown8.Value) ' Cantidad Material
         If TextBox48.Text <> "" Then xlibro.Range("N31").Value = TextBox48.Text ' Costo de Defontana
         If TextBox31.Text <> "" Then xlibro.Range("O31").Value = TextBox31.Text ' Margen (%)
         If TextBox129.Text <> "" Then xlibro.Range("P31").Value = TextBox129.Text ' Para costo de Reposicion articulos de GSI
@@ -2636,7 +2666,7 @@ Public Class Form2
         If TextBox33.Text <> "" Then xlibro.Range("D32").Value = TextBox33.Text ' Descripcion de Materiales
         If TextBox34.Text <> "" Then xlibro.Range("C32").Value = TextBox34.Text ' Codigo del Material
         If TextBox150.Text <> "" Then xlibro.Range("H32").Value = TextBox150.Text ' Codigo Cliente
-        If NumericUpDown9.Text <> "0" And NumericUpDown9.Text <> "" Then xlibro.Range("I32").Value = NumericUpDown9.Text 'Cantidad del Material
+        xlibro.Range("I32").Value = If(NumericUpDown9.Value = 0, "", NumericUpDown9.Value) ' Cantidad Material
         If TextBox49.Text <> "" Then xlibro.Range("N32").Value = TextBox49.Text ' Costo de Defontana
         If TextBox35.Text <> "" Then xlibro.Range("O32").Value = TextBox35.Text ' Margen (%)
         If TextBox130.Text <> "" Then xlibro.Range("P32").Value = TextBox130.Text ' Para costo de Reposicion articulos de GSI
@@ -2645,7 +2675,7 @@ Public Class Form2
         If TextBox37.Text <> "" Then xlibro.Range("D33").Value = TextBox37.Text ' Descripcion de Materiales
         If TextBox38.Text <> "" Then xlibro.Range("C33").Value = TextBox38.Text ' Codigo del Material
         If TextBox151.Text <> "" Then xlibro.Range("H33").Value = TextBox151.Text ' Codigo Cliente
-        If NumericUpDown10.Text <> "0" And NumericUpDown10.Text <> "" Then xlibro.Range("I33").Value = NumericUpDown10.Text 'Cantidad del Material
+        xlibro.Range("I33").Value = If(NumericUpDown10.Value = 0, "", NumericUpDown10.Value) ' Cantidad Material
         If TextBox50.Text <> "" Then xlibro.Range("N33").Value = TextBox50.Text ' Costo de Defontana
         If TextBox39.Text <> "" Then xlibro.Range("O33").Value = TextBox39.Text ' Margen (%)
         If TextBox131.Text <> "" Then xlibro.Range("P33").Value = TextBox131.Text ' Para costo de Reposicion articulos de GSI
@@ -2654,7 +2684,7 @@ Public Class Form2
         If TextBox62.Text <> "" Then xlibro.Range("D34").Value = TextBox62.Text ' Descripcion de Materiales
         If TextBox63.Text <> "" Then xlibro.Range("C34").Value = TextBox63.Text ' Codigo del Material
         If TextBox152.Text <> "" Then xlibro.Range("H34").Value = TextBox152.Text ' Codigo Cliente
-        If NumericUpDown11.Text <> "0" And NumericUpDown11.Text <> "" Then xlibro.Range("I34").Value = NumericUpDown11.Text 'Cantidad del Material
+        xlibro.Range("I34").Value = If(NumericUpDown11.Value = 0, "", NumericUpDown11.Value) ' Cantidad Material
         If TextBox102.Text <> "" Then xlibro.Range("N34").Value = TextBox102.Text ' Costo de Defontana
         If TextBox64.Text <> "" Then xlibro.Range("O34").Value = TextBox64.Text ' Margen (%)
         If TextBox132.Text <> "" Then xlibro.Range("P34").Value = TextBox132.Text ' Para costo de Reposicion articulos de GSI
@@ -2663,7 +2693,7 @@ Public Class Form2
         If TextBox66.Text <> "" Then xlibro.Range("D35").Value = TextBox66.Text ' Descripcion de Materiales
         If TextBox67.Text <> "" Then xlibro.Range("C35").Value = TextBox67.Text ' Codigo del Material
         If TextBox153.Text <> "" Then xlibro.Range("H35").Value = TextBox153.Text ' Codigo Cliente
-        If NumericUpDown12.Text <> "0" And NumericUpDown12.Text <> "" Then xlibro.Range("I35").Value = NumericUpDown12.Text 'Cantidad del Material
+        xlibro.Range("I35").Value = If(NumericUpDown12.Value = 0, "", NumericUpDown12.Value) ' Cantidad Material
         If TextBox103.Text <> "" Then xlibro.Range("N35").Value = TextBox103.Text ' Costo de Defontana
         If TextBox68.Text <> "" Then xlibro.Range("O35").Value = TextBox68.Text ' Margen (%)
         If TextBox133.Text <> "" Then xlibro.Range("P35").Value = TextBox133.Text ' Para costo de Reposicion articulos de GSI
@@ -2672,7 +2702,7 @@ Public Class Form2
         If TextBox70.Text <> "" Then xlibro.Range("D36").Value = TextBox70.Text ' Descripcion de Materiales
         If TextBox71.Text <> "" Then xlibro.Range("C36").Value = TextBox71.Text ' Codigo del Material
         If TextBox154.Text <> "" Then xlibro.Range("H36").Value = TextBox154.Text ' Codigo Cliente
-        If NumericUpDown13.Text <> "0" And NumericUpDown13.Text <> "" Then xlibro.Range("I36").Value = NumericUpDown13.Text 'Cantidad del Material
+        xlibro.Range("I36").Value = If(NumericUpDown13.Value = 0, "", NumericUpDown13.Value) ' Cantidad Material
         If TextBox104.Text <> "" Then xlibro.Range("N36").Value = TextBox104.Text ' Costo de Defontana
         If TextBox72.Text <> "" Then xlibro.Range("O36").Value = TextBox72.Text ' Margen (%)
         If TextBox134.Text <> "" Then xlibro.Range("P36").Value = TextBox134.Text ' Para costo de Reposicion articulos de GSI
@@ -2681,7 +2711,7 @@ Public Class Form2
         If TextBox74.Text <> "" Then xlibro.Range("D37").Value = TextBox74.Text ' Descripcion de Materiales
         If TextBox75.Text <> "" Then xlibro.Range("C37").Value = TextBox75.Text ' Codigo del Material
         If TextBox155.Text <> "" Then xlibro.Range("H37").Value = TextBox155.Text ' Codigo Cliente
-        If NumericUpDown14.Text <> "0" And NumericUpDown14.Text <> "" Then xlibro.Range("I37").Value = NumericUpDown14.Text 'Cantidad del Material
+        xlibro.Range("I37").Value = If(NumericUpDown14.Value = 0, "", NumericUpDown14.Value) ' Cantidad Material
         If TextBox105.Text <> "" Then xlibro.Range("N37").Value = TextBox105.Text ' Costo de Defontana
         If TextBox76.Text <> "" Then xlibro.Range("O37").Value = TextBox76.Text ' Margen (%)
         If TextBox135.Text <> "" Then xlibro.Range("P37").Value = TextBox135.Text ' Para costo de Reposicion articulos de GSI
@@ -2690,7 +2720,7 @@ Public Class Form2
         If TextBox78.Text <> "" Then xlibro.Range("D38").Value = TextBox78.Text ' Descripcion de Materiales
         If TextBox79.Text <> "" Then xlibro.Range("C38").Value = TextBox79.Text ' Codigo del Material
         If TextBox156.Text <> "" Then xlibro.Range("H38").Value = TextBox156.Text ' Codigo Cliente
-        If NumericUpDown15.Text <> "0" And NumericUpDown15.Text <> "" Then xlibro.Range("I38").Value = NumericUpDown15.Text 'Cantidad del Material
+        xlibro.Range("I38").Value = If(NumericUpDown15.Value = 0, "", NumericUpDown15.Value) ' Cantidad Material
         If TextBox106.Text <> "" Then xlibro.Range("N38").Value = TextBox106.Text ' Costo de Defontana
         If TextBox80.Text <> "" Then xlibro.Range("O38").Value = TextBox80.Text ' Margen (%)
         If TextBox136.Text <> "" Then xlibro.Range("P38").Value = TextBox136.Text ' Para costo de Reposicion articulos de GSI
@@ -2699,7 +2729,7 @@ Public Class Form2
         If TextBox82.Text <> "" Then xlibro.Range("D39").Value = TextBox82.Text ' Descripcion de Materiales
         If TextBox83.Text <> "" Then xlibro.Range("C39").Value = TextBox83.Text ' Codigo del Material
         If TextBox157.Text <> "" Then xlibro.Range("H39").Value = TextBox157.Text ' Codigo Cliente
-        If NumericUpDown16.Text <> "0" And NumericUpDown16.Text <> "" Then xlibro.Range("I39").Value = NumericUpDown16.Text 'Cantidad del Material
+        xlibro.Range("I39").Value = If(NumericUpDown16.Value = 0, "", NumericUpDown16.Value) ' Cantidad Material
         If TextBox107.Text <> "" Then xlibro.Range("N39").Value = TextBox107.Text ' Costo de Defontana
         If TextBox84.Text <> "" Then xlibro.Range("O39").Value = TextBox84.Text ' Margen (%)
         If TextBox137.Text <> "" Then xlibro.Range("P39").Value = TextBox137.Text ' Para costo de Reposicion articulos de GSI
@@ -2708,7 +2738,7 @@ Public Class Form2
         If TextBox86.Text <> "" Then xlibro.Range("D40").Value = TextBox86.Text ' Descripcion de Materiales
         If TextBox87.Text <> "" Then xlibro.Range("C40").Value = TextBox87.Text ' Codigo del Material
         If TextBox158.Text <> "" Then xlibro.Range("H40").Value = TextBox158.Text ' Codigo Cliente
-        If NumericUpDown17.Text <> "0" And NumericUpDown17.Text <> "" Then xlibro.Range("I40").Value = NumericUpDown17.Text 'Cantidad del Material
+        xlibro.Range("I40").Value = If(NumericUpDown17.Value = 0, "", NumericUpDown17.Value) ' Cantidad Material
         If TextBox108.Text <> "" Then xlibro.Range("N40").Value = TextBox108.Text ' Costo de Defontana
         If TextBox88.Text <> "" Then xlibro.Range("O40").Value = TextBox88.Text ' Margen (%)
         If TextBox138.Text <> "" Then xlibro.Range("P40").Value = TextBox138.Text ' Para costo de Reposicion articulos de GSI
@@ -2717,7 +2747,7 @@ Public Class Form2
         If TextBox90.Text <> "" Then xlibro.Range("D41").Value = TextBox90.Text ' Descripcion de Materiales
         If TextBox91.Text <> "" Then xlibro.Range("C41").Value = TextBox91.Text ' Codigo del Material
         If TextBox159.Text <> "" Then xlibro.Range("H41").Value = TextBox159.Text ' Codigo Cliente
-        If NumericUpDown18.Text <> "0" And NumericUpDown18.Text <> "" Then xlibro.Range("I41").Value = NumericUpDown18.Text 'Cantidad del Material
+        xlibro.Range("I41").Value = If(NumericUpDown18.Value = 0, "", NumericUpDown18.Value) ' Cantidad Material
         If TextBox109.Text <> "" Then xlibro.Range("N41").Value = TextBox109.Text ' Costo de Defontana
         If TextBox92.Text <> "" Then xlibro.Range("O41").Value = TextBox92.Text ' Margen (%)
         If TextBox139.Text <> "" Then xlibro.Range("P41").Value = TextBox139.Text ' Para costo de Reposicion articulos de GSI
@@ -2726,7 +2756,7 @@ Public Class Form2
         If TextBox94.Text <> "" Then xlibro.Range("D42").Value = TextBox94.Text ' Descripcion de Materiales
         If TextBox95.Text <> "" Then xlibro.Range("C42").Value = TextBox95.Text ' Codigo del Material
         If TextBox160.Text <> "" Then xlibro.Range("H42").Value = TextBox160.Text ' Codigo Cliente
-        If NumericUpDown19.Text <> "0" And NumericUpDown19.Text <> "" Then xlibro.Range("I42").Value = NumericUpDown19.Text 'Cantidad del Material
+        xlibro.Range("I42").Value = If(NumericUpDown19.Value = 0, "", NumericUpDown19.Value) ' Cantidad Material
         If TextBox110.Text <> "" Then xlibro.Range("N42").Value = TextBox110.Text ' Costo de Defontana
         If TextBox96.Text <> "" Then xlibro.Range("O42").Value = TextBox96.Text ' Margen (%)
         If TextBox140.Text <> "" Then xlibro.Range("P42").Value = TextBox140.Text ' Para costo de Reposicion articulos de GSI
@@ -2735,7 +2765,7 @@ Public Class Form2
         If TextBox98.Text <> "" Then xlibro.Range("D43").Value = TextBox98.Text ' Descripcion de Materiales
         If TextBox99.Text <> "" Then xlibro.Range("C43").Value = TextBox99.Text ' Codigo del Material
         If TextBox161.Text <> "" Then xlibro.Range("H43").Value = TextBox161.Text ' Codigo Cliente
-        If NumericUpDown20.Text <> "0" And NumericUpDown20.Text <> "" Then xlibro.Range("I43").Value = NumericUpDown20.Text 'Cantidad del Material
+        xlibro.Range("I43").Value = If(NumericUpDown20.Value = 0, "", NumericUpDown20.Value) ' Cantidad Material
         If TextBox111.Text <> "" Then xlibro.Range("N43").Value = TextBox111.Text ' Costo de Defontana
         If TextBox100.Text <> "" Then xlibro.Range("O43").Value = TextBox100.Text ' Margen (%)
         If TextBox141.Text <> "" Then xlibro.Range("P43").Value = TextBox141.Text ' Para costo de Reposicion articulos de GSI
@@ -2765,226 +2795,217 @@ Public Class Form2
         Dim xlSheet As Microsoft.Office.Interop.Excel.Worksheet = xlibro.Sheets.Item("Planilla de Cot Cliente (USD)")
         xlibro.Visible = True
 
-        ' Validaciones para evitar celdas vacías
-        If TxtRazon.Text <> "" Then xlibro.Range("D15").Value = TxtRazon.Text 'Razon social
-        If TxtAtencion.Text <> "" Then xlibro.Range("D16").Value = TxtAtencion.Text 'Atencion
-        If TxtRut.Text <> "" Then xlibro.Range("D17").Value = TxtRut.Text 'RUT
-        If TxtDireccion.Text <> "" Then xlibro.Range("D18").Value = TxtDireccion.Text 'Direccion
-        If TxtphoneC.Text <> "" Then xlibro.Range("D19").Value = TxtphoneC.Text 'Telefono cliente
-        If TxtCorreoC.Text <> "" Then xlibro.Range("D20").Value = TxtCorreoC.Text 'Correo de Cliente
+        ' Razon social
+        If TxtRazon.Text <> "" Then xlibro.Range("D15").Value = TxtRazon.Text
+        ' Atencion
+        If TxtAtencion.Text <> "" Then xlibro.Range("D16").Value = TxtAtencion.Text
+        ' RUT
+        If TxtRut.Text <> "" Then xlibro.Range("D17").Value = TxtRut.Text
+        ' Direccion
+        If TxtDireccion.Text <> "" Then xlibro.Range("D18").Value = TxtDireccion.Text
+        ' Telefono cliente
+        If TxtphoneC.Text <> "" Then xlibro.Range("D19").Value = TxtphoneC.Text
+        ' Correo de Cliente
+        If TxtCorreoC.Text <> "" Then xlibro.Range("D20").Value = TxtCorreoC.Text
 
-        If TxtCot.Text <> "" And Txtcot2.Text <> "" And Txtcot3.Text <> "" Then
-            xlibro.Range("I10").Value = "TSA - " + TxtCot.Text + Txtcot2.Text + Txtcot3.Text '# de Cotizacion
+        ' # de Cotizacion
+        If TxtCot.Text <> "" Or Txtcot2.Text <> "" Or Txtcot3.Text <> "" Then
+            xlibro.Range("I10").Value = "TSA - " + TxtCot.Text + Txtcot2.Text + Txtcot3.Text
         End If
 
-        If TxtFecha.Text <> "" Then xlibro.Range("J16").Value = TxtFecha.Text 'Fecha del Dia
+        ' Fecha del Dia
+        If TxtFecha.Text <> "" Then xlibro.Range("J16").Value = TxtFecha.Text
+        ' Vendedor
+        If CboContacto.Text <> "" Then xlibro.Range("J17").Value = CboContacto.Text
+        ' Correo de Vendedor
+        If TxtCorreoV.Text <> "" Then xlibro.Range("J18").Value = TxtCorreoV.Text
+        ' Pagina web
+        If TxtWeb.Text <> "" Then xlibro.Range("J19").Value = TxtWeb.Text
+        ' Telefono vendedor
+        If TxtphoneV.Text <> "" Then xlibro.Range("J20").Value = TxtphoneV.Text
 
-        If CboContacto.Text <> "" Then xlibro.Range("J17").Value = CboContacto.Text 'Vendedor
-        If TxtCorreoV.Text <> "" Then xlibro.Range("J18").Value = TxtCorreoV.Text 'Correo de Vendedor
-        If TxtWeb.Text <> "" Then xlibro.Range("J19").Value = TxtWeb.Text 'Pagina web
-        If TxtphoneV.Text <> "" Then xlibro.Range("J20").Value = TxtphoneV.Text 'Telefono vendedor
+        ' Referencia
+        If TxtReferencia.Text <> "" Then xlibro.Range("D21").Value = TxtReferencia.Text
 
-        If TxtReferencia.Text <> "" Then xlibro.Range("D21").Value = TxtReferencia.Text 'Referencia
+        ' Para primera linea activa de Materiales
+        If TextBox1.Text <> "" Then xlibro.Range("D24").Value = TextBox1.Text ' Descripcion de Materiales
+        If TextBox2.Text <> "" Then xlibro.Range("C24").Value = TextBox2.Text ' Codigo del Material
+        If TextBox142.Text <> "" Then xlibro.Range("H24").Value = TextBox142.Text ' Codigo Cliente
+        xlibro.Range("I24").Value = If(NumericUpDown1.Value = 0, "", NumericUpDown1.Value) ' Cantidad Material
+        If TextBox41.Text <> "" Then xlibro.Range("N24").Value = TextBox41.Text ' Costo de Defontana
+        If TextBox3.Text <> "" Then xlibro.Range("O24").Value = TextBox3.Text ' Margen (%)
+        If TextBox122.Text <> "" Then xlibro.Range("P24").Value = TextBox122.Text ' Para costo de Reposicion articulos de GSI
 
-        ' Asignación de valores con comprobación de vacíos
-        If TxtRazon.Text <> "" Then xlibro.Range("D15").Value = TxtRazon.Text 'Razon social
-        If TxtAtencion.Text <> "" Then xlibro.Range("D16").Value = TxtAtencion.Text 'Atencion
-        If TxtRut.Text <> "" Then xlibro.Range("D17").Value = TxtRut.Text 'RUT
-        If TxtDireccion.Text <> "" Then xlibro.Range("D18").Value = TxtDireccion.Text 'Direccion
-        If TxtphoneC.Text <> "" Then xlibro.Range("D19").Value = TxtphoneC.Text 'Telefono cliente
-        If TxtCorreoC.Text <> "" Then xlibro.Range("D20").Value = TxtCorreoC.Text ' Correo de Cliente
+        ' 2da linea de Materiales
+        If TextBox5.Text <> "" Then xlibro.Range("D25").Value = TextBox5.Text ' Descripcion de Materiales
+        If TextBox6.Text <> "" Then xlibro.Range("C25").Value = TextBox6.Text ' Codigo del Material
+        If TextBox143.Text <> "" Then xlibro.Range("H25").Value = TextBox143.Text ' Codigo Cliente
+        xlibro.Range("I25").Value = If(NumericUpDown2.Value = 0, "", NumericUpDown2.Value) ' Cantidad Material
+        If TextBox42.Text <> "" Then xlibro.Range("N25").Value = TextBox42.Text ' Costo de Defontana
+        If TextBox7.Text <> "" Then xlibro.Range("O25").Value = TextBox7.Text ' Margen (%)
+        If TextBox123.Text <> "" Then xlibro.Range("P25").Value = TextBox123.Text ' Para costo de Reposicion articulos de GSI
 
-        If TxtCot.Text <> "" And Txtcot2.Text <> "" And Txtcot3.Text <> "" Then xlibro.Range("I10").Value = "TSA - " + TxtCot.Text + Txtcot2.Text + Txtcot3.Text ' # de Cotizacion
-        If TxtFecha.Text <> "" Then xlibro.Range("J16").Value = TxtFecha.Text ' Fecha del Dia
+        ' 3ra linea de Materiales
+        If TextBox9.Text <> "" Then xlibro.Range("D26").Value = TextBox9.Text ' Descripcion de Materiales
+        If TextBox10.Text <> "" Then xlibro.Range("C26").Value = TextBox10.Text ' Codigo del Material
+        If TextBox144.Text <> "" Then xlibro.Range("H26").Value = TextBox144.Text ' Codigo Cliente
+        xlibro.Range("I26").Value = If(NumericUpDown3.Value = 0, "", NumericUpDown3.Value) ' Cantidad Material
+        If TextBox43.Text <> "" Then xlibro.Range("N26").Value = TextBox43.Text ' Costo de Defontana
+        If TextBox11.Text <> "" Then xlibro.Range("O26").Value = TextBox11.Text ' Margen (%)
+        If TextBox124.Text <> "" Then xlibro.Range("P26").Value = TextBox124.Text ' Para costo de Reposicion articulos de GSI
 
-        If CboContacto.Text <> "" Then xlibro.Range("J17").Value = CboContacto.Text 'Vendedor
-        If TxtCorreoV.Text <> "" Then xlibro.Range("J18").Value = TxtCorreoV.Text 'Correo de Vendedor
-        If TxtWeb.Text <> "" Then xlibro.Range("J19").Value = TxtWeb.Text 'Pagina web
-        If TxtphoneV.Text <> "" Then xlibro.Range("J20").Value = TxtphoneV.Text 'Telefono vendedor
+        ' 4ta linea de Materiales
+        If TextBox13.Text <> "" Then xlibro.Range("D27").Value = TextBox13.Text ' Descripcion de Materiales
+        If TextBox14.Text <> "" Then xlibro.Range("C27").Value = TextBox14.Text ' Codigo del Material
+        If TextBox145.Text <> "" Then xlibro.Range("H27").Value = TextBox145.Text ' Codigo Cliente
+        xlibro.Range("I27").Value = If(NumericUpDown4.Value = 0, "", NumericUpDown4.Value) ' Cantidad Material
+        If TextBox44.Text <> "" Then xlibro.Range("N27").Value = TextBox44.Text ' Costo de Defontana
+        If TextBox15.Text <> "" Then xlibro.Range("O27").Value = TextBox15.Text ' Margen (%)
+        If TextBox125.Text <> "" Then xlibro.Range("P27").Value = TextBox125.Text ' Para costo de Reposicion articulos de GSI
 
-        If TxtReferencia.Text <> "" Then xlibro.Range("D21").Value = TxtReferencia.Text 'Referencia
+        ' 5ta linea de Materiales
+        If TextBox17.Text <> "" Then xlibro.Range("D28").Value = TextBox17.Text ' Descripcion de Materiales
+        If TextBox18.Text <> "" Then xlibro.Range("C28").Value = TextBox18.Text ' Codigo del Material
+        If TextBox146.Text <> "" Then xlibro.Range("H28").Value = TextBox146.Text ' Codigo Cliente
+        xlibro.Range("I28").Value = If(NumericUpDown5.Value = 0, "", NumericUpDown5.Value) ' Cantidad Material
+        If TextBox45.Text <> "" Then xlibro.Range("N28").Value = TextBox45.Text ' Costo de Defontana
+        If TextBox19.Text <> "" Then xlibro.Range("O28").Value = TextBox19.Text ' Margen (%)
+        If TextBox126.Text <> "" Then xlibro.Range("P28").Value = TextBox126.Text ' Para costo de Reposicion articulos de GSI
 
-        ' Para las líneas de materiales, verificamos cada campo antes de asignar el valor
-        If TextBox1.Text <> "" Then xlibro.Range("D24").Value = TextBox1.Text 'Descripcion de Materiales
-        If TextBox2.Text <> "" Then xlibro.Range("C24").Value = TextBox2.Text 'Codigo del Material
-        If TextBox142.Text <> "" Then xlibro.Range("H24").Value = TextBox142.Text 'Codigo Cliente
-        If NumericUpDown1.Text <> "0" And NumericUpDown1.Text <> "" Then xlibro.Range("I24").Value = NumericUpDown1.Text 'Cantidad del Material
-        If TextBox41.Text <> "" Then xlibro.Range("N24").Value = TextBox41.Text 'Costo de Defontana
-        If TextBox3.Text <> "" Then xlibro.Range("O24").Value = TextBox3.Text 'Margen (%)
-        If TextBox122.Text <> "" Then xlibro.Range("P24").Value = TextBox122.Text 'Para costo de Reposicion articulos de GSI
+        ' 6ta linea de Materiales
+        If TextBox21.Text <> "" Then xlibro.Range("D29").Value = TextBox21.Text ' Descripcion de Materiales
+        If TextBox22.Text <> "" Then xlibro.Range("C29").Value = TextBox22.Text ' Codigo del Material
+        If TextBox147.Text <> "" Then xlibro.Range("H29").Value = TextBox147.Text ' Codigo Cliente
+        xlibro.Range("I29").Value = If(NumericUpDown6.Value = 0, "", NumericUpDown6.Value) ' Cantidad Material
+        If TextBox46.Text <> "" Then xlibro.Range("N29").Value = TextBox46.Text ' Costo de Defontana
+        If TextBox23.Text <> "" Then xlibro.Range("O29").Value = TextBox23.Text ' Margen (%)
+        If TextBox127.Text <> "" Then xlibro.Range("P29").Value = TextBox127.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 2da línea de Materiales
-        If TextBox5.Text <> "" Then xlibro.Range("D25").Value = TextBox5.Text 'Descripcion de Materiales
-        If TextBox6.Text <> "" Then xlibro.Range("C25").Value = TextBox6.Text 'Codigo del Material
-        If TextBox143.Text <> "" Then xlibro.Range("H25").Value = TextBox143.Text 'Codigo Cliente
-        If NumericUpDown2.Text <> "0" And NumericUpDown2.Text <> "" Then xlibro.Range("I25").Value = NumericUpDown2.Text 'Cantidad del Material
-        If TextBox42.Text <> "" Then xlibro.Range("N25").Value = TextBox42.Text 'Costo de Defontana
-        If TextBox7.Text <> "" Then xlibro.Range("O25").Value = TextBox7.Text 'Margen (%)
-        If TextBox123.Text <> "" Then xlibro.Range("P25").Value = TextBox123.Text 'Para costo de Reposicion articulos de GSI
+        ' 7ma linea de Materiales
+        If TextBox25.Text <> "" Then xlibro.Range("D30").Value = TextBox25.Text ' Descripcion de Materiales
+        If TextBox26.Text <> "" Then xlibro.Range("C30").Value = TextBox26.Text ' Codigo del Material
+        If TextBox148.Text <> "" Then xlibro.Range("H30").Value = TextBox148.Text ' Codigo Cliente
+        xlibro.Range("I30").Value = If(NumericUpDown7.Value = 0, "", NumericUpDown7.Value) ' Cantidad Material
+        If TextBox47.Text <> "" Then xlibro.Range("N30").Value = TextBox47.Text ' Costo de Defontana
+        If TextBox27.Text <> "" Then xlibro.Range("O30").Value = TextBox27.Text ' Margen (%)
+        If TextBox128.Text <> "" Then xlibro.Range("P30").Value = TextBox128.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 3ra línea de Materiales
-        If TextBox9.Text <> "" Then xlibro.Range("D26").Value = TextBox9.Text 'Descripcion de Materiales
-        If TextBox10.Text <> "" Then xlibro.Range("C26").Value = TextBox10.Text 'Codigo del Material
-        If TextBox144.Text <> "" Then xlibro.Range("H26").Value = TextBox144.Text 'Codigo Cliente
-        If NumericUpDown3.Text <> "0" And NumericUpDown3.Text <> "" Then xlibro.Range("I26").Value = NumericUpDown3.Text 'Cantidad del Material
-        If TextBox43.Text <> "" Then xlibro.Range("N26").Value = TextBox43.Text 'Costo de Defontana
-        If TextBox11.Text <> "" Then xlibro.Range("O26").Value = TextBox11.Text 'Margen (%)
-        If TextBox124.Text <> "" Then xlibro.Range("P26").Value = TextBox124.Text 'Para costo de Reposicion articulos de GSI
+        ' 8va linea de Materiales
+        If TextBox29.Text <> "" Then xlibro.Range("D31").Value = TextBox29.Text ' Descripcion de Materiales
+        If TextBox30.Text <> "" Then xlibro.Range("C31").Value = TextBox30.Text ' Codigo del Material
+        If TextBox149.Text <> "" Then xlibro.Range("H31").Value = TextBox149.Text ' Codigo Cliente
+        xlibro.Range("I31").Value = If(NumericUpDown8.Value = 0, "", NumericUpDown8.Value) ' Cantidad Material
+        If TextBox48.Text <> "" Then xlibro.Range("N31").Value = TextBox48.Text ' Costo de Defontana
+        If TextBox31.Text <> "" Then xlibro.Range("O31").Value = TextBox31.Text ' Margen (%)
+        If TextBox129.Text <> "" Then xlibro.Range("P31").Value = TextBox129.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 4ta línea de Materiales
-        If TextBox13.Text <> "" Then xlibro.Range("D27").Value = TextBox13.Text 'Descripcion de Materiales
-        If TextBox14.Text <> "" Then xlibro.Range("C27").Value = TextBox14.Text 'Codigo del Material
-        If TextBox145.Text <> "" Then xlibro.Range("H27").Value = TextBox145.Text 'Codigo Cliente
-        If NumericUpDown4.Text <> "0" And NumericUpDown4.Text <> "" Then xlibro.Range("I27").Value = NumericUpDown4.Text 'Cantidad del Material
-        If TextBox44.Text <> "" Then xlibro.Range("N27").Value = TextBox44.Text 'Costo de Defontana
-        If TextBox15.Text <> "" Then xlibro.Range("O27").Value = TextBox15.Text 'Margen (%)
-        If TextBox125.Text <> "" Then xlibro.Range("P27").Value = TextBox125.Text 'Para costo de Reposicion articulos de GSI
+        ' 9na linea de Materiales
+        If TextBox33.Text <> "" Then xlibro.Range("D32").Value = TextBox33.Text ' Descripcion de Materiales
+        If TextBox34.Text <> "" Then xlibro.Range("C32").Value = TextBox34.Text ' Codigo del Material
+        If TextBox150.Text <> "" Then xlibro.Range("H32").Value = TextBox150.Text ' Codigo Cliente
+        xlibro.Range("I32").Value = If(NumericUpDown9.Value = 0, "", NumericUpDown9.Value) ' Cantidad Material
+        If TextBox49.Text <> "" Then xlibro.Range("N32").Value = TextBox49.Text ' Costo de Defontana
+        If TextBox35.Text <> "" Then xlibro.Range("O32").Value = TextBox35.Text ' Margen (%)
+        If TextBox130.Text <> "" Then xlibro.Range("P32").Value = TextBox130.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 5ta línea de Materiales
-        If TextBox17.Text <> "" Then xlibro.Range("D28").Value = TextBox17.Text 'Descripcion de Materiales
-        If TextBox18.Text <> "" Then xlibro.Range("C28").Value = TextBox18.Text 'Codigo del Material
-        If TextBox146.Text <> "" Then xlibro.Range("H28").Value = TextBox146.Text 'Codigo Cliente
-        If NumericUpDown5.Text <> "0" And NumericUpDown5.Text <> "" Then xlibro.Range("I28").Value = NumericUpDown5.Text 'Cantidad del Material
-        If TextBox45.Text <> "" Then xlibro.Range("N28").Value = TextBox45.Text 'Costo de Defontana
-        If TextBox19.Text <> "" Then xlibro.Range("O28").Value = TextBox19.Text 'Margen (%)
-        If TextBox126.Text <> "" Then xlibro.Range("P28").Value = TextBox126.Text 'Para costo de Reposicion articulos de GSI
+        ' 10ma linea de Materiales
+        If TextBox37.Text <> "" Then xlibro.Range("D33").Value = TextBox37.Text ' Descripcion de Materiales
+        If TextBox38.Text <> "" Then xlibro.Range("C33").Value = TextBox38.Text ' Codigo del Material
+        If TextBox151.Text <> "" Then xlibro.Range("H33").Value = TextBox151.Text ' Codigo Cliente
+        xlibro.Range("I33").Value = If(NumericUpDown10.Value = 0, "", NumericUpDown10.Value) ' Cantidad Material
+        If TextBox50.Text <> "" Then xlibro.Range("N33").Value = TextBox50.Text ' Costo de Defontana
+        If TextBox39.Text <> "" Then xlibro.Range("O33").Value = TextBox39.Text ' Margen (%)
+        If TextBox131.Text <> "" Then xlibro.Range("P33").Value = TextBox131.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 6ta línea de Materiales
-        If TextBox21.Text <> "" Then xlibro.Range("D29").Value = TextBox21.Text 'Descripcion de Materiales
-        If TextBox22.Text <> "" Then xlibro.Range("C29").Value = TextBox22.Text 'Codigo del Material
-        If TextBox147.Text <> "" Then xlibro.Range("H29").Value = TextBox147.Text 'Codigo Cliente
-        If NumericUpDown6.Text <> "0" And NumericUpDown6.Text <> "" Then xlibro.Range("I29").Value = NumericUpDown6.Text 'Cantidad del Material
-        If TextBox46.Text <> "" Then xlibro.Range("N29").Value = TextBox46.Text 'Costo de Defontana
-        If TextBox23.Text <> "" Then xlibro.Range("O29").Value = TextBox23.Text 'Margen (%)
-        If TextBox127.Text <> "" Then xlibro.Range("P29").Value = TextBox127.Text 'Para costo de Reposicion articulos de GSI
+        ' 11ra linea de Materiales
+        If TextBox62.Text <> "" Then xlibro.Range("D34").Value = TextBox62.Text ' Descripcion de Materiales
+        If TextBox63.Text <> "" Then xlibro.Range("C34").Value = TextBox63.Text ' Codigo del Material
+        If TextBox152.Text <> "" Then xlibro.Range("H34").Value = TextBox152.Text ' Codigo Cliente
+        xlibro.Range("I34").Value = If(NumericUpDown11.Value = 0, "", NumericUpDown11.Value) ' Cantidad Material
+        If TextBox102.Text <> "" Then xlibro.Range("N34").Value = TextBox102.Text ' Costo de Defontana
+        If TextBox64.Text <> "" Then xlibro.Range("O34").Value = TextBox64.Text ' Margen (%)
+        If TextBox132.Text <> "" Then xlibro.Range("P34").Value = TextBox132.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 7ma línea de Materiales
-        If TextBox25.Text <> "" Then xlibro.Range("D30").Value = TextBox25.Text 'Descripcion de Materiales
-        If TextBox26.Text <> "" Then xlibro.Range("C30").Value = TextBox26.Text 'Codigo del Material
-        If TextBox148.Text <> "" Then xlibro.Range("H30").Value = TextBox148.Text 'Codigo Cliente
-        If NumericUpDown7.Text <> "0" And NumericUpDown7.Text <> "" Then xlibro.Range("I30").Value = NumericUpDown7.Text 'Cantidad del Material
-        If TextBox47.Text <> "" Then xlibro.Range("N30").Value = TextBox47.Text 'Costo de Defontana
-        If TextBox27.Text <> "" Then xlibro.Range("O30").Value = TextBox27.Text 'Margen (%)
-        If TextBox128.Text <> "" Then xlibro.Range("P30").Value = TextBox128.Text 'Para costo de Reposicion articulos de GSI
+        ' 12da linea de Materiales
+        If TextBox66.Text <> "" Then xlibro.Range("D35").Value = TextBox66.Text ' Descripcion de Materiales
+        If TextBox67.Text <> "" Then xlibro.Range("C35").Value = TextBox67.Text ' Codigo del Material
+        If TextBox153.Text <> "" Then xlibro.Range("H35").Value = TextBox153.Text ' Codigo Cliente
+        xlibro.Range("I35").Value = If(NumericUpDown12.Value = 0, "", NumericUpDown12.Value) ' Cantidad Material
+        If TextBox103.Text <> "" Then xlibro.Range("N35").Value = TextBox103.Text ' Costo de Defontana
+        If TextBox68.Text <> "" Then xlibro.Range("O35").Value = TextBox68.Text ' Margen (%)
+        If TextBox133.Text <> "" Then xlibro.Range("P35").Value = TextBox133.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 8 Linea de Materiales
-        If TextBox29.Text <> "" Then xlibro.Range("D31").Value = TextBox29.Text 'Descripcion de Materiales
-        If TextBox30.Text <> "" Then xlibro.Range("C31").Value = TextBox30.Text 'Codigo del Material
-        If TextBox149.Text <> "" Then xlibro.Range("H31").Value = TextBox149.Text 'Codigo Cliente
-        If NumericUpDown8.Text <> "0" And NumericUpDown8.Text <> "" Then xlibro.Range("I31").Value = NumericUpDown8.Text 'Cantidad del Material
-        If TextBox48.Text <> "" Then xlibro.Range("N31").Value = TextBox48.Text 'Costo de Defontana
-        If TextBox31.Text <> "" Then xlibro.Range("O31").Value = TextBox31.Text 'Margen (%)
-        If TextBox129.Text <> "" Then xlibro.Range("P31").Value = TextBox129.Text 'Para costo de Reposicion articulos de GSI
+        ' 13ra linea de Materiales
+        If TextBox70.Text <> "" Then xlibro.Range("D36").Value = TextBox70.Text ' Descripcion de Materiales
+        If TextBox71.Text <> "" Then xlibro.Range("C36").Value = TextBox71.Text ' Codigo del Material
+        If TextBox154.Text <> "" Then xlibro.Range("H36").Value = TextBox154.Text ' Codigo Cliente
+        xlibro.Range("I36").Value = If(NumericUpDown13.Value = 0, "", NumericUpDown13.Value) ' Cantidad Material
+        If TextBox104.Text <> "" Then xlibro.Range("N36").Value = TextBox104.Text ' Costo de Defontana
+        If TextBox72.Text <> "" Then xlibro.Range("O36").Value = TextBox72.Text ' Margen (%)
+        If TextBox134.Text <> "" Then xlibro.Range("P36").Value = TextBox134.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 9 Linea de Materiales
-        If TextBox33.Text <> "" Then xlibro.Range("D32").Value = TextBox33.Text 'Descripcion de Materiales
-        If TextBox34.Text <> "" Then xlibro.Range("C32").Value = TextBox34.Text 'Codigo del Material
-        If TextBox150.Text <> "" Then xlibro.Range("H32").Value = TextBox150.Text 'Codigo Cliente
-        If NumericUpDown9.Text <> "0" And NumericUpDown9.Text <> "" Then xlibro.Range("I32").Value = NumericUpDown9.Text 'Cantidad del Material
-        If TextBox49.Text <> "" Then xlibro.Range("N32").Value = TextBox49.Text 'Costo de Defontana
-        If TextBox35.Text <> "" Then xlibro.Range("O32").Value = TextBox35.Text 'Margen (%)
-        If TextBox130.Text <> "" Then xlibro.Range("P32").Value = TextBox130.Text 'Para costo de Reposicion articulos de GSI
+        ' 14ta linea de Materiales
+        If TextBox74.Text <> "" Then xlibro.Range("D37").Value = TextBox74.Text ' Descripcion de Materiales
+        If TextBox75.Text <> "" Then xlibro.Range("C37").Value = TextBox75.Text ' Codigo del Material
+        If TextBox155.Text <> "" Then xlibro.Range("H37").Value = TextBox155.Text ' Codigo Cliente
+        xlibro.Range("I37").Value = If(NumericUpDown14.Value = 0, "", NumericUpDown14.Value) ' Cantidad Material
+        If TextBox105.Text <> "" Then xlibro.Range("N37").Value = TextBox105.Text ' Costo de Defontana
+        If TextBox76.Text <> "" Then xlibro.Range("O37").Value = TextBox76.Text ' Margen (%)
+        If TextBox135.Text <> "" Then xlibro.Range("P37").Value = TextBox135.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 10 Linea de Materiales
-        If TextBox37.Text <> "" Then xlibro.Range("D33").Value = TextBox37.Text 'Descripcion de Materiales
-        If TextBox38.Text <> "" Then xlibro.Range("C33").Value = TextBox38.Text 'Codigo del Material
-        If TextBox151.Text <> "" Then xlibro.Range("H33").Value = TextBox151.Text 'Codigo Cliente
-        If NumericUpDown10.Text <> "0" And NumericUpDown10.Text <> "" Then xlibro.Range("I33").Value = NumericUpDown10.Text 'Cantidad del Material
-        If TextBox50.Text <> "" Then xlibro.Range("N33").Value = TextBox50.Text 'Costo de Defontana
-        If TextBox39.Text <> "" Then xlibro.Range("O33").Value = TextBox39.Text 'Margen (%)
-        If TextBox131.Text <> "" Then xlibro.Range("P33").Value = TextBox131.Text 'Para costo de Reposicion articulos de GSI
+        ' 15ta linea de Materiales
+        If TextBox78.Text <> "" Then xlibro.Range("D38").Value = TextBox78.Text ' Descripcion de Materiales
+        If TextBox79.Text <> "" Then xlibro.Range("C38").Value = TextBox79.Text ' Codigo del Material
+        If TextBox156.Text <> "" Then xlibro.Range("H38").Value = TextBox156.Text ' Codigo Cliente
+        xlibro.Range("I38").Value = If(NumericUpDown15.Value = 0, "", NumericUpDown15.Value) ' Cantidad Material
+        If TextBox106.Text <> "" Then xlibro.Range("N38").Value = TextBox106.Text ' Costo de Defontana
+        If TextBox80.Text <> "" Then xlibro.Range("O38").Value = TextBox80.Text ' Margen (%)
+        If TextBox136.Text <> "" Then xlibro.Range("P38").Value = TextBox136.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 11 Linea de Materiales
-        If TextBox62.Text <> "" Then xlibro.Range("D34").Value = TextBox62.Text 'Descripcion de Materiales
-        If TextBox63.Text <> "" Then xlibro.Range("C34").Value = TextBox63.Text 'Codigo del Material
-        If TextBox152.Text <> "" Then xlibro.Range("H34").Value = TextBox152.Text 'Codigo Cliente
-        If NumericUpDown11.Text <> "0" And NumericUpDown11.Text <> "" Then xlibro.Range("I34").Value = NumericUpDown11.Text 'Cantidad del Material
-        If TextBox102.Text <> "" Then xlibro.Range("N34").Value = TextBox102.Text 'Costo de Defontana
-        If TextBox64.Text <> "" Then xlibro.Range("O34").Value = TextBox64.Text 'Margen (%)
-        If TextBox132.Text <> "" Then xlibro.Range("P34").Value = TextBox132.Text 'Para costo de Reposicion articulos de GSI
+        ' 16ta linea de Materiales
+        If TextBox82.Text <> "" Then xlibro.Range("D39").Value = TextBox82.Text ' Descripcion de Materiales
+        If TextBox83.Text <> "" Then xlibro.Range("C39").Value = TextBox83.Text ' Codigo del Material
+        If TextBox157.Text <> "" Then xlibro.Range("H39").Value = TextBox157.Text ' Codigo Cliente
+        xlibro.Range("I39").Value = If(NumericUpDown16.Value = 0, "", NumericUpDown16.Value) ' Cantidad Material
+        If TextBox107.Text <> "" Then xlibro.Range("N39").Value = TextBox107.Text ' Costo de Defontana
+        If TextBox84.Text <> "" Then xlibro.Range("O39").Value = TextBox84.Text ' Margen (%)
+        If TextBox137.Text <> "" Then xlibro.Range("P39").Value = TextBox137.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 12 Linea de Materiales
-        If TextBox66.Text <> "" Then xlibro.Range("D35").Value = TextBox66.Text 'Descripcion de Materiales
-        If TextBox67.Text <> "" Then xlibro.Range("C35").Value = TextBox67.Text 'Codigo del Material
-        If TextBox153.Text <> "" Then xlibro.Range("H35").Value = TextBox153.Text 'Codigo Cliente
-        If NumericUpDown12.Text <> "0" And NumericUpDown12.Text <> "" Then xlibro.Range("I35").Value = NumericUpDown12.Text 'Cantidad del Material
-        If TextBox103.Text <> "" Then xlibro.Range("N35").Value = TextBox103.Text 'Costo de Defontana
-        If TextBox68.Text <> "" Then xlibro.Range("O35").Value = TextBox68.Text 'Margen (%)
-        If TextBox133.Text <> "" Then xlibro.Range("P35").Value = TextBox133.Text 'Para costo de Reposicion articulos de GSI
+        ' 17ma linea de Materiales
+        If TextBox86.Text <> "" Then xlibro.Range("D40").Value = TextBox86.Text ' Descripcion de Materiales
+        If TextBox87.Text <> "" Then xlibro.Range("C40").Value = TextBox87.Text ' Codigo del Material
+        If TextBox158.Text <> "" Then xlibro.Range("H40").Value = TextBox158.Text ' Codigo Cliente
+        xlibro.Range("I40").Value = If(NumericUpDown17.Value = 0, "", NumericUpDown17.Value) ' Cantidad Material
+        If TextBox108.Text <> "" Then xlibro.Range("N40").Value = TextBox108.Text ' Costo de Defontana
+        If TextBox88.Text <> "" Then xlibro.Range("O40").Value = TextBox88.Text ' Margen (%)
+        If TextBox138.Text <> "" Then xlibro.Range("P40").Value = TextBox138.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 13 Linea de Materiales
-        If TextBox70.Text <> "" Then xlibro.Range("D36").Value = TextBox70.Text 'Descripcion de Materiales
-        If TextBox71.Text <> "" Then xlibro.Range("C36").Value = TextBox71.Text 'Codigo del Material
-        If TextBox154.Text <> "" Then xlibro.Range("H36").Value = TextBox154.Text 'Codigo Cliente
-        If NumericUpDown13.Text <> "0" And NumericUpDown13.Text <> "" Then xlibro.Range("I36").Value = NumericUpDown13.Text 'Cantidad del Material
-        If TextBox104.Text <> "" Then xlibro.Range("N36").Value = TextBox104.Text 'Costo de Defontana
-        If TextBox72.Text <> "" Then xlibro.Range("O36").Value = TextBox72.Text 'Margen (%)
-        If TextBox134.Text <> "" Then xlibro.Range("P34").Value = TextBox134.Text 'Para costo de Reposicion articulos de GSI
+        ' 18va linea de Materiales
+        If TextBox90.Text <> "" Then xlibro.Range("D41").Value = TextBox90.Text ' Descripcion de Materiales
+        If TextBox91.Text <> "" Then xlibro.Range("C41").Value = TextBox91.Text ' Codigo del Material
+        If TextBox159.Text <> "" Then xlibro.Range("H41").Value = TextBox159.Text ' Codigo Cliente
+        xlibro.Range("I41").Value = If(NumericUpDown18.Value = 0, "", NumericUpDown18.Value) ' Cantidad Material
+        If TextBox109.Text <> "" Then xlibro.Range("N41").Value = TextBox109.Text ' Costo de Defontana
+        If TextBox92.Text <> "" Then xlibro.Range("O41").Value = TextBox92.Text ' Margen (%)
+        If TextBox139.Text <> "" Then xlibro.Range("P41").Value = TextBox139.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 14 Linea de Materiales
-        If TextBox74.Text <> "" Then xlibro.Range("D37").Value = TextBox74.Text 'Descripcion de Materiales
-        If TextBox75.Text <> "" Then xlibro.Range("C37").Value = TextBox75.Text 'Codigo del Material
-        If TextBox155.Text <> "" Then xlibro.Range("H37").Value = TextBox155.Text 'Codigo Cliente
-        If NumericUpDown14.Text <> "0" And NumericUpDown14.Text <> "" Then xlibro.Range("I37").Value = NumericUpDown14.Text 'Cantidad del Material
-        If TextBox105.Text <> "" Then xlibro.Range("N37").Value = TextBox105.Text 'Costo de Defontana
-        If TextBox76.Text <> "" Then xlibro.Range("O37").Value = TextBox76.Text 'Margen (%)
-        If TextBox135.Text <> "" Then xlibro.Range("P37").Value = TextBox135.Text 'Para costo de Reposicion articulos de GSI
+        ' 19na linea de Materiales
+        If TextBox94.Text <> "" Then xlibro.Range("D42").Value = TextBox94.Text ' Descripcion de Materiales
+        If TextBox95.Text <> "" Then xlibro.Range("C42").Value = TextBox95.Text ' Codigo del Material
+        If TextBox160.Text <> "" Then xlibro.Range("H42").Value = TextBox160.Text ' Codigo Cliente
+        xlibro.Range("I42").Value = If(NumericUpDown19.Value = 0, "", NumericUpDown19.Value) ' Cantidad Material
+        If TextBox110.Text <> "" Then xlibro.Range("N42").Value = TextBox110.Text ' Costo de Defontana
+        If TextBox96.Text <> "" Then xlibro.Range("O42").Value = TextBox96.Text ' Margen (%)
+        If TextBox140.Text <> "" Then xlibro.Range("P42").Value = TextBox140.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 15 Linea de Materiales
-        If TextBox78.Text <> "" Then xlibro.Range("D38").Value = TextBox78.Text 'Descripcion de Materiales
-        If TextBox79.Text <> "" Then xlibro.Range("C38").Value = TextBox79.Text 'Codigo del Material
-        If TextBox156.Text <> "" Then xlibro.Range("H38").Value = TextBox156.Text 'Codigo Cliente
-        If NumericUpDown15.Text <> "0" And NumericUpDown15.Text <> "" Then xlibro.Range("I38").Value = NumericUpDown15.Text 'Cantidad del Material
-        If TextBox106.Text <> "" Then xlibro.Range("N38").Value = TextBox106.Text 'Costo de Defontana
-        If TextBox80.Text <> "" Then xlibro.Range("O38").Value = TextBox80.Text 'Margen (%)
-        If TextBox136.Text <> "" Then xlibro.Range("P38").Value = TextBox136.Text 'Para costo de Reposicion articulos de GSI
-
-        ' 16 Linea de Materiales
-        If TextBox82.Text <> "" Then xlibro.Range("D39").Value = TextBox82.Text 'Descripcion de Materiales
-        If TextBox83.Text <> "" Then xlibro.Range("C39").Value = TextBox83.Text 'Codigo del Material
-        If TextBox157.Text <> "" Then xlibro.Range("H39").Value = TextBox157.Text 'Codigo Cliente
-        If NumericUpDown16.Text <> "0" And NumericUpDown16.Text <> "" Then xlibro.Range("I39").Value = NumericUpDown16.Text 'Cantidad del Material
-        If TextBox107.Text <> "" Then xlibro.Range("N39").Value = TextBox107.Text 'Costo de Defontana
-        If TextBox84.Text <> "" Then xlibro.Range("O39").Value = TextBox84.Text 'Margen (%)
-        If TextBox137.Text <> "" Then xlibro.Range("P39").Value = TextBox137.Text 'Para costo de Reposicion articulos de GSI
-
-        ' 17 Linea de Materiales
-        If TextBox86.Text <> "" Then xlibro.Range("D40").Value = TextBox86.Text 'Descripcion de Materiales
-        If TextBox87.Text <> "" Then xlibro.Range("C40").Value = TextBox87.Text 'Codigo del Material
-        If TextBox158.Text <> "" Then xlibro.Range("H40").Value = TextBox158.Text 'Codigo Cliente
-        If NumericUpDown17.Text <> "0" And NumericUpDown17.Text <> "" Then xlibro.Range("I40").Value = NumericUpDown17.Text 'Cantidad del Material
-        If TextBox108.Text <> "" Then xlibro.Range("N40").Value = TextBox108.Text 'Costo de Defontana
-        If TextBox88.Text <> "" Then xlibro.Range("O40").Value = TextBox88.Text 'Margen (%)
-        If TextBox138.Text <> "" Then xlibro.Range("P40").Value = TextBox138.Text 'Para costo de Reposicion articulos de GSI
-
-        ' 18 Linea de Materiales
-        If TextBox90.Text <> "" Then xlibro.Range("D41").Value = TextBox90.Text 'Descripcion de Materiales
-        If TextBox91.Text <> "" Then xlibro.Range("C41").Value = TextBox91.Text 'Codigo del Material
-        If TextBox159.Text <> "" Then xlibro.Range("H41").Value = TextBox159.Text 'Codigo Cliente
-        If NumericUpDown18.Text <> "0" And NumericUpDown18.Text <> "" Then xlibro.Range("I41").Value = NumericUpDown18.Text 'Cantidad del Material
-        If TextBox109.Text <> "" Then xlibro.Range("N41").Value = TextBox109.Text 'Costo de Defontana
-        If TextBox92.Text <> "" Then xlibro.Range("O41").Value = TextBox92.Text 'Margen (%)
-        If TextBox139.Text <> "" Then xlibro.Range("P41").Value = TextBox139.Text 'Para costo de Reposicion articulos de GSI
-
-        ' 19 Linea de Materiales
-        If TextBox94.Text <> "" Then xlibro.Range("D42").Value = TextBox94.Text 'Descripcion de Materiales
-        If TextBox95.Text <> "" Then xlibro.Range("C42").Value = TextBox95.Text 'Codigo del Material
-        If TextBox160.Text <> "" Then xlibro.Range("H42").Value = TextBox160.Text 'Codigo Cliente
-        If NumericUpDown19.Text <> "0" And NumericUpDown19.Text <> "" Then xlibro.Range("I42").Value = NumericUpDown19.Text 'Cantidad del Material
-        If TextBox110.Text <> "" Then xlibro.Range("N42").Value = TextBox110.Text 'Costo de Defontana
-        If TextBox96.Text <> "" Then xlibro.Range("O42").Value = TextBox96.Text 'Margen (%)
-        If TextBox140.Text <> "" Then xlibro.Range("P42").Value = TextBox140.Text 'Para costo de Reposicion articulos de GSI
-
-
-        ' 20ma línea de Materiales 
-        If TextBox98.Text <> "" Then xlibro.Range("D43").Value = TextBox98.Text 'Descripcion de Materiales
-        If TextBox99.Text <> "" Then xlibro.Range("C43").Value = TextBox99.Text 'Codigo del Material
-        If TextBox161.Text <> "" Then xlibro.Range("H43").Value = TextBox161.Text 'Codigo Cliente
-        If NumericUpDown20.Text <> "0" And NumericUpDown20.Text <> "" Then xlibro.Range("I43").Value = NumericUpDown20.Text 'Cantidad del Material
-        If TextBox111.Text <> "" Then xlibro.Range("N43").Value = TextBox111.Text 'Costo de Defontana
-        If TextBox100.Text <> "" Then xlibro.Range("O43").Value = TextBox100.Text 'Margen (%)
-        If TextBox141.Text <> "" Then xlibro.Range("P43").Value = TextBox141.Text 'Para costo de Reposicion articulos de GSI
-
+        ' 20ma linea de Materiales
+        If TextBox98.Text <> "" Then xlibro.Range("D43").Value = TextBox98.Text ' Descripcion de Materiales
+        If TextBox99.Text <> "" Then xlibro.Range("C43").Value = TextBox99.Text ' Codigo del Material
+        If TextBox161.Text <> "" Then xlibro.Range("H43").Value = TextBox161.Text ' Codigo Cliente
+        xlibro.Range("I43").Value = If(NumericUpDown20.Value = 0, "", NumericUpDown20.Value) ' Cantidad Material
+        If TextBox111.Text <> "" Then xlibro.Range("N43").Value = TextBox111.Text ' Costo de Defontana
+        If TextBox100.Text <> "" Then xlibro.Range("O43").Value = TextBox100.Text ' Margen (%)
+        If TextBox141.Text <> "" Then xlibro.Range("P43").Value = TextBox141.Text ' Para costo de Reposicion articulos de GSI
         ' Datos adicionales
         If CboLugar.Text <> "" Then xlibro.Range("D58").Value = CboLugar.Text
         If TxtPlazo.Text <> "" Then xlibro.Range("D59").Value = TxtPlazo.Text
@@ -3009,225 +3030,217 @@ Public Class Form2
         Dim xlSheet As Microsoft.Office.Interop.Excel.Worksheet = xlibro.Sheets.Item("Planilla de Cot Cliente (EUR)")
         xlibro.Visible = True
 
-        ' Validaciones para evitar celdas vacías
-        If TxtRazon.Text <> "" Then xlibro.Range("D15").Value = TxtRazon.Text 'Razon social
-        If TxtAtencion.Text <> "" Then xlibro.Range("D16").Value = TxtAtencion.Text 'Atencion
-        If TxtRut.Text <> "" Then xlibro.Range("D17").Value = TxtRut.Text 'RUT
-        If TxtDireccion.Text <> "" Then xlibro.Range("D18").Value = TxtDireccion.Text 'Direccion
-        If TxtphoneC.Text <> "" Then xlibro.Range("D19").Value = TxtphoneC.Text 'Telefono cliente
-        If TxtCorreoC.Text <> "" Then xlibro.Range("D20").Value = TxtCorreoC.Text 'Correo de Cliente
+        ' Razon social
+        If TxtRazon.Text <> "" Then xlibro.Range("D15").Value = TxtRazon.Text
+        ' Atencion
+        If TxtAtencion.Text <> "" Then xlibro.Range("D16").Value = TxtAtencion.Text
+        ' RUT
+        If TxtRut.Text <> "" Then xlibro.Range("D17").Value = TxtRut.Text
+        ' Direccion
+        If TxtDireccion.Text <> "" Then xlibro.Range("D18").Value = TxtDireccion.Text
+        ' Telefono cliente
+        If TxtphoneC.Text <> "" Then xlibro.Range("D19").Value = TxtphoneC.Text
+        ' Correo de Cliente
+        If TxtCorreoC.Text <> "" Then xlibro.Range("D20").Value = TxtCorreoC.Text
 
-        If TxtCot.Text <> "" And Txtcot2.Text <> "" And Txtcot3.Text <> "" Then
-            xlibro.Range("I10").Value = "TSA - " + TxtCot.Text + Txtcot2.Text + Txtcot3.Text '# de Cotizacion
+        ' # de Cotizacion
+        If TxtCot.Text <> "" Or Txtcot2.Text <> "" Or Txtcot3.Text <> "" Then
+            xlibro.Range("I10").Value = "TSA - " + TxtCot.Text + Txtcot2.Text + Txtcot3.Text
         End If
 
-        If TxtFecha.Text <> "" Then xlibro.Range("J16").Value = TxtFecha.Text 'Fecha del Dia
+        ' Fecha del Dia
+        If TxtFecha.Text <> "" Then xlibro.Range("J16").Value = TxtFecha.Text
+        ' Vendedor
+        If CboContacto.Text <> "" Then xlibro.Range("J17").Value = CboContacto.Text
+        ' Correo de Vendedor
+        If TxtCorreoV.Text <> "" Then xlibro.Range("J18").Value = TxtCorreoV.Text
+        ' Pagina web
+        If TxtWeb.Text <> "" Then xlibro.Range("J19").Value = TxtWeb.Text
+        ' Telefono vendedor
+        If TxtphoneV.Text <> "" Then xlibro.Range("J20").Value = TxtphoneV.Text
 
-        If CboContacto.Text <> "" Then xlibro.Range("J17").Value = CboContacto.Text 'Vendedor
-        If TxtCorreoV.Text <> "" Then xlibro.Range("J18").Value = TxtCorreoV.Text 'Correo de Vendedor
-        If TxtWeb.Text <> "" Then xlibro.Range("J19").Value = TxtWeb.Text 'Pagina web
-        If TxtphoneV.Text <> "" Then xlibro.Range("J20").Value = TxtphoneV.Text 'Telefono vendedor
+        ' Referencia
+        If TxtReferencia.Text <> "" Then xlibro.Range("D21").Value = TxtReferencia.Text
 
-        If TxtReferencia.Text <> "" Then xlibro.Range("D21").Value = TxtReferencia.Text 'Referencia
+        ' Para primera linea activa de Materiales
+        If TextBox1.Text <> "" Then xlibro.Range("D24").Value = TextBox1.Text ' Descripcion de Materiales
+        If TextBox2.Text <> "" Then xlibro.Range("C24").Value = TextBox2.Text ' Codigo del Material
+        If TextBox142.Text <> "" Then xlibro.Range("H24").Value = TextBox142.Text ' Codigo Cliente
+        xlibro.Range("I24").Value = If(NumericUpDown1.Value = 0, "", NumericUpDown1.Value) ' Cantidad Material
+        If TextBox41.Text <> "" Then xlibro.Range("N24").Value = TextBox41.Text ' Costo de Defontana
+        If TextBox3.Text <> "" Then xlibro.Range("O24").Value = TextBox3.Text ' Margen (%)
+        If TextBox122.Text <> "" Then xlibro.Range("P24").Value = TextBox122.Text ' Para costo de Reposicion articulos de GSI
 
-        ' Asignación de valores con comprobación de vacíos
-        If TxtRazon.Text <> "" Then xlibro.Range("D15").Value = TxtRazon.Text 'Razon social
-        If TxtAtencion.Text <> "" Then xlibro.Range("D16").Value = TxtAtencion.Text 'Atencion
-        If TxtRut.Text <> "" Then xlibro.Range("D17").Value = TxtRut.Text 'RUT
-        If TxtDireccion.Text <> "" Then xlibro.Range("D18").Value = TxtDireccion.Text 'Direccion
-        If TxtphoneC.Text <> "" Then xlibro.Range("D19").Value = TxtphoneC.Text 'Telefono cliente
-        If TxtCorreoC.Text <> "" Then xlibro.Range("D20").Value = TxtCorreoC.Text ' Correo de Cliente
+        ' 2da linea de Materiales
+        If TextBox5.Text <> "" Then xlibro.Range("D25").Value = TextBox5.Text ' Descripcion de Materiales
+        If TextBox6.Text <> "" Then xlibro.Range("C25").Value = TextBox6.Text ' Codigo del Material
+        If TextBox143.Text <> "" Then xlibro.Range("H25").Value = TextBox143.Text ' Codigo Cliente
+        xlibro.Range("I25").Value = If(NumericUpDown2.Value = 0, "", NumericUpDown2.Value) ' Cantidad Material
+        If TextBox42.Text <> "" Then xlibro.Range("N25").Value = TextBox42.Text ' Costo de Defontana
+        If TextBox7.Text <> "" Then xlibro.Range("O25").Value = TextBox7.Text ' Margen (%)
+        If TextBox123.Text <> "" Then xlibro.Range("P25").Value = TextBox123.Text ' Para costo de Reposicion articulos de GSI
 
-        If TxtCot.Text <> "" And Txtcot2.Text <> "" And Txtcot3.Text <> "" Then xlibro.Range("I10").Value = "TSA - " + TxtCot.Text + Txtcot2.Text + Txtcot3.Text ' # de Cotizacion
-        If TxtFecha.Text <> "" Then xlibro.Range("J16").Value = TxtFecha.Text ' Fecha del Dia
+        ' 3ra linea de Materiales
+        If TextBox9.Text <> "" Then xlibro.Range("D26").Value = TextBox9.Text ' Descripcion de Materiales
+        If TextBox10.Text <> "" Then xlibro.Range("C26").Value = TextBox10.Text ' Codigo del Material
+        If TextBox144.Text <> "" Then xlibro.Range("H26").Value = TextBox144.Text ' Codigo Cliente
+        xlibro.Range("I26").Value = If(NumericUpDown3.Value = 0, "", NumericUpDown3.Value) ' Cantidad Material
+        If TextBox43.Text <> "" Then xlibro.Range("N26").Value = TextBox43.Text ' Costo de Defontana
+        If TextBox11.Text <> "" Then xlibro.Range("O26").Value = TextBox11.Text ' Margen (%)
+        If TextBox124.Text <> "" Then xlibro.Range("P26").Value = TextBox124.Text ' Para costo de Reposicion articulos de GSI
 
-        If CboContacto.Text <> "" Then xlibro.Range("J17").Value = CboContacto.Text 'Vendedor
-        If TxtCorreoV.Text <> "" Then xlibro.Range("J18").Value = TxtCorreoV.Text 'Correo de Vendedor
-        If TxtWeb.Text <> "" Then xlibro.Range("J19").Value = TxtWeb.Text 'Pagina web
-        If TxtphoneV.Text <> "" Then xlibro.Range("J20").Value = TxtphoneV.Text 'Telefono vendedor
+        ' 4ta linea de Materiales
+        If TextBox13.Text <> "" Then xlibro.Range("D27").Value = TextBox13.Text ' Descripcion de Materiales
+        If TextBox14.Text <> "" Then xlibro.Range("C27").Value = TextBox14.Text ' Codigo del Material
+        If TextBox145.Text <> "" Then xlibro.Range("H27").Value = TextBox145.Text ' Codigo Cliente
+        xlibro.Range("I27").Value = If(NumericUpDown4.Value = 0, "", NumericUpDown4.Value) ' Cantidad Material
+        If TextBox44.Text <> "" Then xlibro.Range("N27").Value = TextBox44.Text ' Costo de Defontana
+        If TextBox15.Text <> "" Then xlibro.Range("O27").Value = TextBox15.Text ' Margen (%)
+        If TextBox125.Text <> "" Then xlibro.Range("P27").Value = TextBox125.Text ' Para costo de Reposicion articulos de GSI
 
-        If TxtReferencia.Text <> "" Then xlibro.Range("D21").Value = TxtReferencia.Text 'Referencia
+        ' 5ta linea de Materiales
+        If TextBox17.Text <> "" Then xlibro.Range("D28").Value = TextBox17.Text ' Descripcion de Materiales
+        If TextBox18.Text <> "" Then xlibro.Range("C28").Value = TextBox18.Text ' Codigo del Material
+        If TextBox146.Text <> "" Then xlibro.Range("H28").Value = TextBox146.Text ' Codigo Cliente
+        xlibro.Range("I28").Value = If(NumericUpDown5.Value = 0, "", NumericUpDown5.Value) ' Cantidad Material
+        If TextBox45.Text <> "" Then xlibro.Range("N28").Value = TextBox45.Text ' Costo de Defontana
+        If TextBox19.Text <> "" Then xlibro.Range("O28").Value = TextBox19.Text ' Margen (%)
+        If TextBox126.Text <> "" Then xlibro.Range("P28").Value = TextBox126.Text ' Para costo de Reposicion articulos de GSI
 
-        ' Para las líneas de materiales, verificamos cada campo antes de asignar el valor
-        If TextBox1.Text <> "" Then xlibro.Range("D24").Value = TextBox1.Text 'Descripcion de Materiales
-        If TextBox2.Text <> "" Then xlibro.Range("C24").Value = TextBox2.Text 'Codigo del Material
-        If TextBox142.Text <> "" Then xlibro.Range("H24").Value = TextBox142.Text 'Codigo Cliente
-        If NumericUpDown1.Text <> "0" And NumericUpDown1.Text <> "" Then xlibro.Range("I24").Value = NumericUpDown1.Text 'Cantidad del Material
-        If TextBox41.Text <> "" Then xlibro.Range("N24").Value = TextBox41.Text 'Costo de Defontana
-        If TextBox3.Text <> "" Then xlibro.Range("O24").Value = TextBox3.Text 'Margen (%)
-        If TextBox122.Text <> "" Then xlibro.Range("P24").Value = TextBox122.Text 'Para costo de Reposicion articulos de GSI
+        ' 6ta linea de Materiales
+        If TextBox21.Text <> "" Then xlibro.Range("D29").Value = TextBox21.Text ' Descripcion de Materiales
+        If TextBox22.Text <> "" Then xlibro.Range("C29").Value = TextBox22.Text ' Codigo del Material
+        If TextBox147.Text <> "" Then xlibro.Range("H29").Value = TextBox147.Text ' Codigo Cliente
+        xlibro.Range("I29").Value = If(NumericUpDown6.Value = 0, "", NumericUpDown6.Value) ' Cantidad Material
+        If TextBox46.Text <> "" Then xlibro.Range("N29").Value = TextBox46.Text ' Costo de Defontana
+        If TextBox23.Text <> "" Then xlibro.Range("O29").Value = TextBox23.Text ' Margen (%)
+        If TextBox127.Text <> "" Then xlibro.Range("P29").Value = TextBox127.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 2da línea de Materiales
-        If TextBox5.Text <> "" Then xlibro.Range("D25").Value = TextBox5.Text 'Descripcion de Materiales
-        If TextBox6.Text <> "" Then xlibro.Range("C25").Value = TextBox6.Text 'Codigo del Material
-        If TextBox143.Text <> "" Then xlibro.Range("H25").Value = TextBox143.Text 'Codigo Cliente
-        If NumericUpDown2.Text <> "0" And NumericUpDown2.Text <> "" Then xlibro.Range("I25").Value = NumericUpDown2.Text 'Cantidad del Material
-        If TextBox42.Text <> "" Then xlibro.Range("N25").Value = TextBox42.Text 'Costo de Defontana
-        If TextBox7.Text <> "" Then xlibro.Range("O25").Value = TextBox7.Text 'Margen (%)
-        If TextBox123.Text <> "" Then xlibro.Range("P25").Value = TextBox123.Text 'Para costo de Reposicion articulos de GSI
+        ' 7ma linea de Materiales
+        If TextBox25.Text <> "" Then xlibro.Range("D30").Value = TextBox25.Text ' Descripcion de Materiales
+        If TextBox26.Text <> "" Then xlibro.Range("C30").Value = TextBox26.Text ' Codigo del Material
+        If TextBox148.Text <> "" Then xlibro.Range("H30").Value = TextBox148.Text ' Codigo Cliente
+        xlibro.Range("I30").Value = If(NumericUpDown7.Value = 0, "", NumericUpDown7.Value) ' Cantidad Material
+        If TextBox47.Text <> "" Then xlibro.Range("N30").Value = TextBox47.Text ' Costo de Defontana
+        If TextBox27.Text <> "" Then xlibro.Range("O30").Value = TextBox27.Text ' Margen (%)
+        If TextBox128.Text <> "" Then xlibro.Range("P30").Value = TextBox128.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 3ra línea de Materiales
-        If TextBox9.Text <> "" Then xlibro.Range("D26").Value = TextBox9.Text 'Descripcion de Materiales
-        If TextBox10.Text <> "" Then xlibro.Range("C26").Value = TextBox10.Text 'Codigo del Material
-        If TextBox144.Text <> "" Then xlibro.Range("H26").Value = TextBox144.Text 'Codigo Cliente
-        If NumericUpDown3.Text <> "0" And NumericUpDown3.Text <> "" Then xlibro.Range("I26").Value = NumericUpDown3.Text 'Cantidad del Material
-        If TextBox43.Text <> "" Then xlibro.Range("N26").Value = TextBox43.Text 'Costo de Defontana
-        If TextBox11.Text <> "" Then xlibro.Range("O26").Value = TextBox11.Text 'Margen (%)
-        If TextBox124.Text <> "" Then xlibro.Range("P26").Value = TextBox124.Text 'Para costo de Reposicion articulos de GSI
+        ' 8va linea de Materiales
+        If TextBox29.Text <> "" Then xlibro.Range("D31").Value = TextBox29.Text ' Descripcion de Materiales
+        If TextBox30.Text <> "" Then xlibro.Range("C31").Value = TextBox30.Text ' Codigo del Material
+        If TextBox149.Text <> "" Then xlibro.Range("H31").Value = TextBox149.Text ' Codigo Cliente
+        xlibro.Range("I31").Value = If(NumericUpDown8.Value = 0, "", NumericUpDown8.Value) ' Cantidad Material
+        If TextBox48.Text <> "" Then xlibro.Range("N31").Value = TextBox48.Text ' Costo de Defontana
+        If TextBox31.Text <> "" Then xlibro.Range("O31").Value = TextBox31.Text ' Margen (%)
+        If TextBox129.Text <> "" Then xlibro.Range("P31").Value = TextBox129.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 4ta línea de Materiales
-        If TextBox13.Text <> "" Then xlibro.Range("D27").Value = TextBox13.Text 'Descripcion de Materiales
-        If TextBox14.Text <> "" Then xlibro.Range("C27").Value = TextBox14.Text 'Codigo del Material
-        If TextBox145.Text <> "" Then xlibro.Range("H27").Value = TextBox145.Text 'Codigo Cliente
-        If NumericUpDown4.Text <> "0" And NumericUpDown4.Text <> "" Then xlibro.Range("I27").Value = NumericUpDown4.Text 'Cantidad del Material
-        If TextBox44.Text <> "" Then xlibro.Range("N27").Value = TextBox44.Text 'Costo de Defontana
-        If TextBox15.Text <> "" Then xlibro.Range("O27").Value = TextBox15.Text 'Margen (%)
-        If TextBox125.Text <> "" Then xlibro.Range("P27").Value = TextBox125.Text 'Para costo de Reposicion articulos de GSI
+        ' 9na linea de Materiales
+        If TextBox33.Text <> "" Then xlibro.Range("D32").Value = TextBox33.Text ' Descripcion de Materiales
+        If TextBox34.Text <> "" Then xlibro.Range("C32").Value = TextBox34.Text ' Codigo del Material
+        If TextBox150.Text <> "" Then xlibro.Range("H32").Value = TextBox150.Text ' Codigo Cliente
+        xlibro.Range("I32").Value = If(NumericUpDown9.Value = 0, "", NumericUpDown9.Value) ' Cantidad Material
+        If TextBox49.Text <> "" Then xlibro.Range("N32").Value = TextBox49.Text ' Costo de Defontana
+        If TextBox35.Text <> "" Then xlibro.Range("O32").Value = TextBox35.Text ' Margen (%)
+        If TextBox130.Text <> "" Then xlibro.Range("P32").Value = TextBox130.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 5ta línea de Materiales
-        If TextBox17.Text <> "" Then xlibro.Range("D28").Value = TextBox17.Text 'Descripcion de Materiales
-        If TextBox18.Text <> "" Then xlibro.Range("C28").Value = TextBox18.Text 'Codigo del Material
-        If TextBox146.Text <> "" Then xlibro.Range("H28").Value = TextBox146.Text 'Codigo Cliente
-        If NumericUpDown5.Text <> "0" And NumericUpDown5.Text <> "" Then xlibro.Range("I28").Value = NumericUpDown5.Text 'Cantidad del Material
-        If TextBox45.Text <> "" Then xlibro.Range("N28").Value = TextBox45.Text 'Costo de Defontana
-        If TextBox19.Text <> "" Then xlibro.Range("O28").Value = TextBox19.Text 'Margen (%)
-        If TextBox126.Text <> "" Then xlibro.Range("P28").Value = TextBox126.Text 'Para costo de Reposicion articulos de GSI
+        ' 10ma linea de Materiales
+        If TextBox37.Text <> "" Then xlibro.Range("D33").Value = TextBox37.Text ' Descripcion de Materiales
+        If TextBox38.Text <> "" Then xlibro.Range("C33").Value = TextBox38.Text ' Codigo del Material
+        If TextBox151.Text <> "" Then xlibro.Range("H33").Value = TextBox151.Text ' Codigo Cliente
+        xlibro.Range("I33").Value = If(NumericUpDown10.Value = 0, "", NumericUpDown10.Value) ' Cantidad Material
+        If TextBox50.Text <> "" Then xlibro.Range("N33").Value = TextBox50.Text ' Costo de Defontana
+        If TextBox39.Text <> "" Then xlibro.Range("O33").Value = TextBox39.Text ' Margen (%)
+        If TextBox131.Text <> "" Then xlibro.Range("P33").Value = TextBox131.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 6ta línea de Materiales
-        If TextBox21.Text <> "" Then xlibro.Range("D29").Value = TextBox21.Text 'Descripcion de Materiales
-        If TextBox22.Text <> "" Then xlibro.Range("C29").Value = TextBox22.Text 'Codigo del Material
-        If TextBox147.Text <> "" Then xlibro.Range("H29").Value = TextBox147.Text 'Codigo Cliente
-        If NumericUpDown6.Text <> "0" And NumericUpDown6.Text <> "" Then xlibro.Range("I29").Value = NumericUpDown6.Text 'Cantidad del Material
-        If TextBox46.Text <> "" Then xlibro.Range("N29").Value = TextBox46.Text 'Costo de Defontana
-        If TextBox23.Text <> "" Then xlibro.Range("O29").Value = TextBox23.Text 'Margen (%)
-        If TextBox127.Text <> "" Then xlibro.Range("P29").Value = TextBox127.Text 'Para costo de Reposicion articulos de GSI
+        ' 11ra linea de Materiales
+        If TextBox62.Text <> "" Then xlibro.Range("D34").Value = TextBox62.Text ' Descripcion de Materiales
+        If TextBox63.Text <> "" Then xlibro.Range("C34").Value = TextBox63.Text ' Codigo del Material
+        If TextBox152.Text <> "" Then xlibro.Range("H34").Value = TextBox152.Text ' Codigo Cliente
+        xlibro.Range("I34").Value = If(NumericUpDown11.Value = 0, "", NumericUpDown11.Value) ' Cantidad Material
+        If TextBox102.Text <> "" Then xlibro.Range("N34").Value = TextBox102.Text ' Costo de Defontana
+        If TextBox64.Text <> "" Then xlibro.Range("O34").Value = TextBox64.Text ' Margen (%)
+        If TextBox132.Text <> "" Then xlibro.Range("P34").Value = TextBox132.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 7ma línea de Materiales
-        If TextBox25.Text <> "" Then xlibro.Range("D30").Value = TextBox25.Text 'Descripcion de Materiales
-        If TextBox26.Text <> "" Then xlibro.Range("C30").Value = TextBox26.Text 'Codigo del Material
-        If TextBox148.Text <> "" Then xlibro.Range("H30").Value = TextBox148.Text 'Codigo Cliente
-        If NumericUpDown7.Text <> "0" And NumericUpDown7.Text <> "" Then xlibro.Range("I30").Value = NumericUpDown7.Text 'Cantidad del Material
-        If TextBox47.Text <> "" Then xlibro.Range("N30").Value = TextBox47.Text 'Costo de Defontana
-        If TextBox27.Text <> "" Then xlibro.Range("O30").Value = TextBox27.Text 'Margen (%)
-        If TextBox128.Text <> "" Then xlibro.Range("P30").Value = TextBox128.Text 'Para costo de Reposicion articulos de GSI
+        ' 12da linea de Materiales
+        If TextBox66.Text <> "" Then xlibro.Range("D35").Value = TextBox66.Text ' Descripcion de Materiales
+        If TextBox67.Text <> "" Then xlibro.Range("C35").Value = TextBox67.Text ' Codigo del Material
+        If TextBox153.Text <> "" Then xlibro.Range("H35").Value = TextBox153.Text ' Codigo Cliente
+        xlibro.Range("I35").Value = If(NumericUpDown12.Value = 0, "", NumericUpDown12.Value) ' Cantidad Material
+        If TextBox103.Text <> "" Then xlibro.Range("N35").Value = TextBox103.Text ' Costo de Defontana
+        If TextBox68.Text <> "" Then xlibro.Range("O35").Value = TextBox68.Text ' Margen (%)
+        If TextBox133.Text <> "" Then xlibro.Range("P35").Value = TextBox133.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 8 Linea de Materiales
-        If TextBox29.Text <> "" Then xlibro.Range("D31").Value = TextBox29.Text 'Descripcion de Materiales
-        If TextBox30.Text <> "" Then xlibro.Range("C31").Value = TextBox30.Text 'Codigo del Material
-        If TextBox149.Text <> "" Then xlibro.Range("H31").Value = TextBox149.Text 'Codigo Cliente
-        If NumericUpDown8.Text <> "0" And NumericUpDown8.Text <> "" Then xlibro.Range("I31").Value = NumericUpDown8.Text 'Cantidad del Material
-        If TextBox48.Text <> "" Then xlibro.Range("N31").Value = TextBox48.Text 'Costo de Defontana
-        If TextBox31.Text <> "" Then xlibro.Range("O31").Value = TextBox31.Text 'Margen (%)
-        If TextBox129.Text <> "" Then xlibro.Range("P31").Value = TextBox129.Text 'Para costo de Reposicion articulos de GSI
+        ' 13ra linea de Materiales
+        If TextBox70.Text <> "" Then xlibro.Range("D36").Value = TextBox70.Text ' Descripcion de Materiales
+        If TextBox71.Text <> "" Then xlibro.Range("C36").Value = TextBox71.Text ' Codigo del Material
+        If TextBox154.Text <> "" Then xlibro.Range("H36").Value = TextBox154.Text ' Codigo Cliente
+        xlibro.Range("I36").Value = If(NumericUpDown13.Value = 0, "", NumericUpDown13.Value) ' Cantidad Material
+        If TextBox104.Text <> "" Then xlibro.Range("N36").Value = TextBox104.Text ' Costo de Defontana
+        If TextBox72.Text <> "" Then xlibro.Range("O36").Value = TextBox72.Text ' Margen (%)
+        If TextBox134.Text <> "" Then xlibro.Range("P36").Value = TextBox134.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 9 Linea de Materiales
-        If TextBox33.Text <> "" Then xlibro.Range("D32").Value = TextBox33.Text 'Descripcion de Materiales
-        If TextBox34.Text <> "" Then xlibro.Range("C32").Value = TextBox34.Text 'Codigo del Material
-        If TextBox150.Text <> "" Then xlibro.Range("H32").Value = TextBox150.Text 'Codigo Cliente
-        If NumericUpDown9.Text <> "0" And NumericUpDown9.Text <> "" Then xlibro.Range("I32").Value = NumericUpDown9.Text 'Cantidad del Material
-        If TextBox49.Text <> "" Then xlibro.Range("N32").Value = TextBox49.Text 'Costo de Defontana
-        If TextBox35.Text <> "" Then xlibro.Range("O32").Value = TextBox35.Text 'Margen (%)
-        If TextBox130.Text <> "" Then xlibro.Range("P32").Value = TextBox130.Text 'Para costo de Reposicion articulos de GSI
+        ' 14ta linea de Materiales
+        If TextBox74.Text <> "" Then xlibro.Range("D37").Value = TextBox74.Text ' Descripcion de Materiales
+        If TextBox75.Text <> "" Then xlibro.Range("C37").Value = TextBox75.Text ' Codigo del Material
+        If TextBox155.Text <> "" Then xlibro.Range("H37").Value = TextBox155.Text ' Codigo Cliente
+        xlibro.Range("I37").Value = If(NumericUpDown14.Value = 0, "", NumericUpDown14.Value) ' Cantidad Material
+        If TextBox105.Text <> "" Then xlibro.Range("N37").Value = TextBox105.Text ' Costo de Defontana
+        If TextBox76.Text <> "" Then xlibro.Range("O37").Value = TextBox76.Text ' Margen (%)
+        If TextBox135.Text <> "" Then xlibro.Range("P37").Value = TextBox135.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 10 Linea de Materiales
-        If TextBox37.Text <> "" Then xlibro.Range("D33").Value = TextBox37.Text 'Descripcion de Materiales
-        If TextBox38.Text <> "" Then xlibro.Range("C33").Value = TextBox38.Text 'Codigo del Material
-        If TextBox151.Text <> "" Then xlibro.Range("H33").Value = TextBox151.Text 'Codigo Cliente
-        If NumericUpDown10.Text <> "0" And NumericUpDown10.Text <> "" Then xlibro.Range("I33").Value = NumericUpDown10.Text 'Cantidad del Material
-        If TextBox50.Text <> "" Then xlibro.Range("N33").Value = TextBox50.Text 'Costo de Defontana
-        If TextBox39.Text <> "" Then xlibro.Range("O33").Value = TextBox39.Text 'Margen (%)
-        If TextBox131.Text <> "" Then xlibro.Range("P33").Value = TextBox131.Text 'Para costo de Reposicion articulos de GSI
+        ' 15ta linea de Materiales
+        If TextBox78.Text <> "" Then xlibro.Range("D38").Value = TextBox78.Text ' Descripcion de Materiales
+        If TextBox79.Text <> "" Then xlibro.Range("C38").Value = TextBox79.Text ' Codigo del Material
+        If TextBox156.Text <> "" Then xlibro.Range("H38").Value = TextBox156.Text ' Codigo Cliente
+        xlibro.Range("I38").Value = If(NumericUpDown15.Value = 0, "", NumericUpDown15.Value) ' Cantidad Material
+        If TextBox106.Text <> "" Then xlibro.Range("N38").Value = TextBox106.Text ' Costo de Defontana
+        If TextBox80.Text <> "" Then xlibro.Range("O38").Value = TextBox80.Text ' Margen (%)
+        If TextBox136.Text <> "" Then xlibro.Range("P38").Value = TextBox136.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 11 Linea de Materiales
-        If TextBox62.Text <> "" Then xlibro.Range("D34").Value = TextBox62.Text 'Descripcion de Materiales
-        If TextBox63.Text <> "" Then xlibro.Range("C34").Value = TextBox63.Text 'Codigo del Material
-        If TextBox152.Text <> "" Then xlibro.Range("H34").Value = TextBox152.Text 'Codigo Cliente
-        If NumericUpDown11.Text <> "0" And NumericUpDown11.Text <> "" Then xlibro.Range("I34").Value = NumericUpDown11.Text 'Cantidad del Material
-        If TextBox102.Text <> "" Then xlibro.Range("N34").Value = TextBox102.Text 'Costo de Defontana
-        If TextBox64.Text <> "" Then xlibro.Range("O34").Value = TextBox64.Text 'Margen (%)
-        If TextBox132.Text <> "" Then xlibro.Range("P34").Value = TextBox132.Text 'Para costo de Reposicion articulos de GSI
+        ' 16ta linea de Materiales
+        If TextBox82.Text <> "" Then xlibro.Range("D39").Value = TextBox82.Text ' Descripcion de Materiales
+        If TextBox83.Text <> "" Then xlibro.Range("C39").Value = TextBox83.Text ' Codigo del Material
+        If TextBox157.Text <> "" Then xlibro.Range("H39").Value = TextBox157.Text ' Codigo Cliente
+        xlibro.Range("I39").Value = If(NumericUpDown16.Value = 0, "", NumericUpDown16.Value) ' Cantidad Material
+        If TextBox107.Text <> "" Then xlibro.Range("N39").Value = TextBox107.Text ' Costo de Defontana
+        If TextBox84.Text <> "" Then xlibro.Range("O39").Value = TextBox84.Text ' Margen (%)
+        If TextBox137.Text <> "" Then xlibro.Range("P39").Value = TextBox137.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 12 Linea de Materiales
-        If TextBox66.Text <> "" Then xlibro.Range("D35").Value = TextBox66.Text 'Descripcion de Materiales
-        If TextBox67.Text <> "" Then xlibro.Range("C35").Value = TextBox67.Text 'Codigo del Material
-        If TextBox153.Text <> "" Then xlibro.Range("H35").Value = TextBox153.Text 'Codigo Cliente
-        If NumericUpDown12.Text <> "0" And NumericUpDown12.Text <> "" Then xlibro.Range("I35").Value = NumericUpDown12.Text 'Cantidad del Material
-        If TextBox103.Text <> "" Then xlibro.Range("N35").Value = TextBox103.Text 'Costo de Defontana
-        If TextBox68.Text <> "" Then xlibro.Range("O35").Value = TextBox68.Text 'Margen (%)
-        If TextBox133.Text <> "" Then xlibro.Range("P35").Value = TextBox133.Text 'Para costo de Reposicion articulos de GSI
+        ' 17ma linea de Materiales
+        If TextBox86.Text <> "" Then xlibro.Range("D40").Value = TextBox86.Text ' Descripcion de Materiales
+        If TextBox87.Text <> "" Then xlibro.Range("C40").Value = TextBox87.Text ' Codigo del Material
+        If TextBox158.Text <> "" Then xlibro.Range("H40").Value = TextBox158.Text ' Codigo Cliente
+        xlibro.Range("I40").Value = If(NumericUpDown17.Value = 0, "", NumericUpDown17.Value) ' Cantidad Material
+        If TextBox108.Text <> "" Then xlibro.Range("N40").Value = TextBox108.Text ' Costo de Defontana
+        If TextBox88.Text <> "" Then xlibro.Range("O40").Value = TextBox88.Text ' Margen (%)
+        If TextBox138.Text <> "" Then xlibro.Range("P40").Value = TextBox138.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 13 Linea de Materiales
-        If TextBox70.Text <> "" Then xlibro.Range("D36").Value = TextBox70.Text 'Descripcion de Materiales
-        If TextBox71.Text <> "" Then xlibro.Range("C36").Value = TextBox71.Text 'Codigo del Material
-        If TextBox154.Text <> "" Then xlibro.Range("H36").Value = TextBox154.Text 'Codigo Cliente
-        If NumericUpDown13.Text <> "0" And NumericUpDown13.Text <> "" Then xlibro.Range("I36").Value = NumericUpDown13.Text 'Cantidad del Material
-        If TextBox104.Text <> "" Then xlibro.Range("N36").Value = TextBox104.Text 'Costo de Defontana
-        If TextBox72.Text <> "" Then xlibro.Range("O36").Value = TextBox72.Text 'Margen (%)
-        If TextBox134.Text <> "" Then xlibro.Range("P34").Value = TextBox134.Text 'Para costo de Reposicion articulos de GSI
+        ' 18va linea de Materiales
+        If TextBox90.Text <> "" Then xlibro.Range("D41").Value = TextBox90.Text ' Descripcion de Materiales
+        If TextBox91.Text <> "" Then xlibro.Range("C41").Value = TextBox91.Text ' Codigo del Material
+        If TextBox159.Text <> "" Then xlibro.Range("H41").Value = TextBox159.Text ' Codigo Cliente
+        xlibro.Range("I41").Value = If(NumericUpDown18.Value = 0, "", NumericUpDown18.Value) ' Cantidad Material
+        If TextBox109.Text <> "" Then xlibro.Range("N41").Value = TextBox109.Text ' Costo de Defontana
+        If TextBox92.Text <> "" Then xlibro.Range("O41").Value = TextBox92.Text ' Margen (%)
+        If TextBox139.Text <> "" Then xlibro.Range("P41").Value = TextBox139.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 14 Linea de Materiales
-        If TextBox74.Text <> "" Then xlibro.Range("D37").Value = TextBox74.Text 'Descripcion de Materiales
-        If TextBox75.Text <> "" Then xlibro.Range("C37").Value = TextBox75.Text 'Codigo del Material
-        If TextBox155.Text <> "" Then xlibro.Range("H37").Value = TextBox155.Text 'Codigo Cliente
-        If NumericUpDown14.Text <> "0" And NumericUpDown14.Text <> "" Then xlibro.Range("I37").Value = NumericUpDown14.Text 'Cantidad del Material
-        If TextBox105.Text <> "" Then xlibro.Range("N37").Value = TextBox105.Text 'Costo de Defontana
-        If TextBox76.Text <> "" Then xlibro.Range("O37").Value = TextBox76.Text 'Margen (%)
-        If TextBox135.Text <> "" Then xlibro.Range("P37").Value = TextBox135.Text 'Para costo de Reposicion articulos de GSI
+        ' 19na linea de Materiales
+        If TextBox94.Text <> "" Then xlibro.Range("D42").Value = TextBox94.Text ' Descripcion de Materiales
+        If TextBox95.Text <> "" Then xlibro.Range("C42").Value = TextBox95.Text ' Codigo del Material
+        If TextBox160.Text <> "" Then xlibro.Range("H42").Value = TextBox160.Text ' Codigo Cliente
+        xlibro.Range("I42").Value = If(NumericUpDown19.Value = 0, "", NumericUpDown19.Value) ' Cantidad Material
+        If TextBox110.Text <> "" Then xlibro.Range("N42").Value = TextBox110.Text ' Costo de Defontana
+        If TextBox96.Text <> "" Then xlibro.Range("O42").Value = TextBox96.Text ' Margen (%)
+        If TextBox140.Text <> "" Then xlibro.Range("P42").Value = TextBox140.Text ' Para costo de Reposicion articulos de GSI
 
-        ' 15 Linea de Materiales
-        If TextBox78.Text <> "" Then xlibro.Range("D38").Value = TextBox78.Text 'Descripcion de Materiales
-        If TextBox79.Text <> "" Then xlibro.Range("C38").Value = TextBox79.Text 'Codigo del Material
-        If TextBox156.Text <> "" Then xlibro.Range("H38").Value = TextBox156.Text 'Codigo Cliente
-        If NumericUpDown15.Text <> "0" And NumericUpDown15.Text <> "" Then xlibro.Range("I38").Value = NumericUpDown15.Text 'Cantidad del Material
-        If TextBox106.Text <> "" Then xlibro.Range("N38").Value = TextBox106.Text 'Costo de Defontana
-        If TextBox80.Text <> "" Then xlibro.Range("O38").Value = TextBox80.Text 'Margen (%)
-        If TextBox136.Text <> "" Then xlibro.Range("P38").Value = TextBox136.Text 'Para costo de Reposicion articulos de GSI
-
-        ' 16 Linea de Materiales
-        If TextBox82.Text <> "" Then xlibro.Range("D39").Value = TextBox82.Text 'Descripcion de Materiales
-        If TextBox83.Text <> "" Then xlibro.Range("C39").Value = TextBox83.Text 'Codigo del Material
-        If TextBox157.Text <> "" Then xlibro.Range("H39").Value = TextBox157.Text 'Codigo Cliente
-        If NumericUpDown16.Text <> "0" And NumericUpDown16.Text <> "" Then xlibro.Range("I39").Value = NumericUpDown16.Text 'Cantidad del Material
-        If TextBox107.Text <> "" Then xlibro.Range("N39").Value = TextBox107.Text 'Costo de Defontana
-        If TextBox84.Text <> "" Then xlibro.Range("O39").Value = TextBox84.Text 'Margen (%)
-        If TextBox137.Text <> "" Then xlibro.Range("P39").Value = TextBox137.Text 'Para costo de Reposicion articulos de GSI
-
-        ' 17 Linea de Materiales
-        If TextBox86.Text <> "" Then xlibro.Range("D40").Value = TextBox86.Text 'Descripcion de Materiales
-        If TextBox87.Text <> "" Then xlibro.Range("C40").Value = TextBox87.Text 'Codigo del Material
-        If TextBox158.Text <> "" Then xlibro.Range("H40").Value = TextBox158.Text 'Codigo Cliente
-        If NumericUpDown17.Text <> "0" And NumericUpDown17.Text <> "" Then xlibro.Range("I40").Value = NumericUpDown17.Text 'Cantidad del Material
-        If TextBox108.Text <> "" Then xlibro.Range("N40").Value = TextBox108.Text 'Costo de Defontana
-        If TextBox88.Text <> "" Then xlibro.Range("O40").Value = TextBox88.Text 'Margen (%)
-        If TextBox138.Text <> "" Then xlibro.Range("P40").Value = TextBox138.Text 'Para costo de Reposicion articulos de GSI
-
-        ' 18 Linea de Materiales
-        If TextBox90.Text <> "" Then xlibro.Range("D41").Value = TextBox90.Text 'Descripcion de Materiales
-        If TextBox91.Text <> "" Then xlibro.Range("C41").Value = TextBox91.Text 'Codigo del Material
-        If TextBox159.Text <> "" Then xlibro.Range("H41").Value = TextBox159.Text 'Codigo Cliente
-        If NumericUpDown18.Text <> "0" And NumericUpDown18.Text <> "" Then xlibro.Range("I41").Value = NumericUpDown18.Text 'Cantidad del Material
-        If TextBox109.Text <> "" Then xlibro.Range("N41").Value = TextBox109.Text 'Costo de Defontana
-        If TextBox92.Text <> "" Then xlibro.Range("O41").Value = TextBox92.Text 'Margen (%)
-        If TextBox139.Text <> "" Then xlibro.Range("P41").Value = TextBox139.Text 'Para costo de Reposicion articulos de GSI
-
-        ' 19 Linea de Materiales
-        If TextBox94.Text <> "" Then xlibro.Range("D42").Value = TextBox94.Text 'Descripcion de Materiales
-        If TextBox95.Text <> "" Then xlibro.Range("C42").Value = TextBox95.Text 'Codigo del Material
-        If TextBox160.Text <> "" Then xlibro.Range("H42").Value = TextBox160.Text 'Codigo Cliente
-        If NumericUpDown19.Text <> "0" And NumericUpDown19.Text <> "" Then xlibro.Range("I42").Value = NumericUpDown19.Text 'Cantidad del Material
-        If TextBox110.Text <> "" Then xlibro.Range("N42").Value = TextBox110.Text 'Costo de Defontana
-        If TextBox96.Text <> "" Then xlibro.Range("O42").Value = TextBox96.Text 'Margen (%)
-        If TextBox140.Text <> "" Then xlibro.Range("P42").Value = TextBox140.Text 'Para costo de Reposicion articulos de GSI
-
-
-        ' 20ma línea de Materiales 
-        If TextBox98.Text <> "" Then xlibro.Range("D43").Value = TextBox98.Text 'Descripcion de Materiales
-        If TextBox99.Text <> "" Then xlibro.Range("C43").Value = TextBox99.Text 'Codigo del Material
-        If TextBox161.Text <> "" Then xlibro.Range("H43").Value = TextBox161.Text 'Codigo Cliente
-        If NumericUpDown20.Text <> "0" And NumericUpDown20.Text <> "" Then xlibro.Range("I43").Value = NumericUpDown20.Text 'Cantidad del Material
-        If TextBox111.Text <> "" Then xlibro.Range("N43").Value = TextBox111.Text 'Costo de Defontana
-        If TextBox100.Text <> "" Then xlibro.Range("O43").Value = TextBox100.Text 'Margen (%)
-        If TextBox141.Text <> "" Then xlibro.Range("P43").Value = TextBox141.Text 'Para costo de Reposicion articulos de GSI
+        ' 20ma linea de Materiales
+        If TextBox98.Text <> "" Then xlibro.Range("D43").Value = TextBox98.Text ' Descripcion de Materiales
+        If TextBox99.Text <> "" Then xlibro.Range("C43").Value = TextBox99.Text ' Codigo del Material
+        If TextBox161.Text <> "" Then xlibro.Range("H43").Value = TextBox161.Text ' Codigo Cliente
+        xlibro.Range("I43").Value = If(NumericUpDown20.Value = 0, "", NumericUpDown20.Value) ' Cantidad Material
+        If TextBox111.Text <> "" Then xlibro.Range("N43").Value = TextBox111.Text ' Costo de Defontana
+        If TextBox100.Text <> "" Then xlibro.Range("O43").Value = TextBox100.Text ' Margen (%)
+        If TextBox141.Text <> "" Then xlibro.Range("P43").Value = TextBox141.Text ' Para costo de Reposicion articulos de GSI
 
         ' Datos adicionales
         If CboLugar.Text <> "" Then xlibro.Range("D58").Value = CboLugar.Text
@@ -3241,28 +3254,25 @@ Public Class Form2
 #End Region
 #Region "Para Nuevos datos para la atencion"
     Private Sub ComboBox3_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBox3.SelectedIndexChanged
-        'Para búsqueda de variables
-        Using cxx As New MySqlConnection(cadena2)
-            Dim query As String = "SELECT DISTINCT Tipo FROM Partes WHERE Objetivo = '" & Me.ComboBox3.Text.Replace("'", "''") & "'"
-            Dim ooo As New MySqlDataAdapter(query, cxx)
-            Dim aaa As New DataTable("Parte")
-            ooo.Fill(aaa)
-            ComboBox1.DataSource = aaa
-            ComboBox1.DisplayMember = "Tipo"
-            ComboBox1.Refresh()
-        End Using
+        If TiposPorObjetivo.ContainsKey(ComboBox3.Text) Then
+            ComboBox1.Items.Clear()
+            ComboBox1.Items.AddRange(TiposPorObjetivo(ComboBox3.Text).ToArray())
+            ComboBox1.SelectedIndex = 0 ' o -1 si quieres dejarlo sin selección inicial
+        End If
     End Sub
 
     Private Sub ComboBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBox1.SelectedIndexChanged
-        Using vbc As New MySqlConnection(cadena2)
-            Dim query As String = "SELECT DISTINCT Clase FROM Tipo WHERE Tipo = '" & Me.ComboBox1.Text.Replace("'", "''") & "'"
-            Dim ppp As New MySqlDataAdapter(query, vbc)
-            Dim qqq As New DataTable("Tipo")
-            ppp.Fill(qqq)
-            ComboBox5.DataSource = qqq
-            ComboBox5.DisplayMember = "Clase"
-            ComboBox5.Refresh()
-        End Using
+        If ClasesPorTipo.ContainsKey(ComboBox1.Text) Then
+            ComboBox5.DataSource = Nothing
+            ComboBox5.Items.Clear()
+            ComboBox5.Items.AddRange(ClasesPorTipo(ComboBox1.Text).ToArray())
+
+            If ComboBox5.Items.Count > 0 Then
+                ComboBox5.SelectedIndex = 0
+            Else
+                ComboBox5.SelectedIndex = -1
+            End If
+        End If
     End Sub
 
     Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles PictureBox1.Click
@@ -4002,6 +4012,9 @@ Public Class Form2
         End If
     End Sub
 
+    Private Sub TextBox142_TextChanged(sender As Object, e As EventArgs) Handles TextBox142.TextChanged
+
+    End Sub
 
 #End Region
 End Class

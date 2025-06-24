@@ -118,25 +118,35 @@ Public Class Form10
     ''' Carga los datos en los ComboBox desde la base de datos.
     ''' </summary>
     Private Sub CargarComboboxes()
-        Using cnx As New MySqlConnection(cadenaConexion)
-            cnx.Open()
-            CargarComboBox("SELECT DISTINCT LUGAR_ENTREGA FROM Lugar", ComboBox1, "LUGAR_ENTREGA", cnx)
-            CargarComboBox("SELECT DISTINCT condiciones FROM Pago", ComboBox2, "condiciones", cnx)
-            CargarComboBox("SELECT DISTINCT validez FROM Validez", ComboBox3, "validez", cnx)
-        End Using
+        ' Asignar ítems
+        ComboBox1.Items.Add("BODEGA SANTIAGO LAMPA")
+        ComboBox1.Items.Add("PLANTEL")
+        ComboBox1.Items.Add("OTROS")
+
+        ' Asociar direcciones
+        'DireccionesEntrega("BODEGA SANTIAGO LAMPA") = "Costanera poniente Ferrocarril 941, Lampa, Bodega B-12, PROCENTRO, Telefono: + 56 9 2375 9373"
+        'DireccionesEntrega("PLANTEL") = ""
+        'DireccionesEntrega("OTROS") = ""
+        ComboBox2.Items.Add("A CONVENIR")
+        ComboBox2.Items.Add("CONTADO")
+        ComboBox2.Items.Add("50% DE CONTADO Y 50% CONTRA ENTREGA")
+        ComboBox2.Items.Add("40% DE CONTADO, 30 Y 60 DIAS")
+        ComboBox2.Items.Add("CREDITO A 30 DIAS")
+        ComboBox2.Items.Add("CREDITO A 60 DIAS")
+        ComboBox2.Items.Add("CREDITO A 90 DIAS")
+        ComboBox2.Items.Add("CHEQUE AL DIA")
+        ComboBox2.Items.Add("CHEQUE A 30 DIAS")
+        ComboBox2.Items.Add("CHEQUE A 60 DIAS")
+        ComboBox2.Items.Add("CHEQUE A 90 DIAS")
+
+
+        ComboBox3.Items.Add("TIENE UNA VALIDEZ DE 10 DIAS")
+        ComboBox3.Items.Add("TIENE UNA VALIDEZ DE 15 DIAS")
+        ComboBox3.Items.Add("TIENE UNA VALIDEZ DE 20 DIAS")
+        ComboBox3.Items.Add("TIENE UNA VALIDEZ DE 30 DIAS")
     End Sub
 
-    ''' <summary>
-    ''' Método genérico para cargar datos en un ComboBox.
-    ''' </summary>
-    Private Sub CargarComboBox(query As String, combo As ComboBox, displayMember As String, cnx As MySqlConnection)
-        Dim adapter As New MySqlDataAdapter(query, cnx)
-        Dim dt As New DataTable()
-        adapter.Fill(dt)
-        combo.DataSource = dt
-        combo.DisplayMember = displayMember
-        combo.Refresh()
-    End Sub
+
 
     ''' <summary>
     ''' Limpia los valores de los controles al cargar el formulario.
@@ -1707,7 +1717,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -1752,7 +1762,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -1797,7 +1807,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -1843,7 +1853,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -1886,7 +1896,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -1930,7 +1940,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -1974,7 +1984,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2018,7 +2028,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2061,7 +2071,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2102,7 +2112,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2147,7 +2157,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2191,7 +2201,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2235,7 +2245,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2278,7 +2288,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2321,7 +2331,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2365,7 +2375,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2410,7 +2420,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2455,7 +2465,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -2499,7 +2509,7 @@ End Sub
                 Dim Agregar As String = "INSERT INTO TSADATACOTIZACION (Cotizacion, Fecha, Razon_Social, RUT, Atencion, Direccion_ate, Telefono_ate, Correo_ate,
                 Contacto, Telefono_cont, Correo_cont, Pagina_Web, Referencia, Descripcion_mat, Codigo_mat, Cantidad, Precio, Total, Moneda, ID, Linea, OC, FechaOC, OC_Items, Fecha_OC_Items, Fecha_Entrega,
                 Fecha_Ent_Items) VALUES ('" & Cot & "','" & Fec & "','" & Raz & "','" & RUT & "','" & Ate & "','" & DirAte & "','" & TelAte & "','" & CorAte & "','" & Ven & "','" & TelVen & "',
-                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "''" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
+                '" & CorVen & "','" & Web & "','" & Ref & "','" & Descrip & "','" & Codi & "','" & Cant & "','" & Precio & "','" & Total & "','" & Moneda & "','" & ID & "','" & Lin & "','" & OC & "',
                 '" & FOC & "','" & OCitems & "','" & FecOcIts & "','" & FecEnt & "','" & FecEntIts & "')"
 
                 Dim Seleccion As New MySqlCommand(Agregar, conex)
@@ -5097,6 +5107,7 @@ End Sub
             Borrar.ExecuteNonQuery()
         End If
     End Sub
+
 
 #End Region
 
