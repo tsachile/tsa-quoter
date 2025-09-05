@@ -857,35 +857,68 @@ Public Class Form3
     End Sub
 
     Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' Obtener la resolución de la pantalla
-        Dim screenWidth As Integer = Screen.PrimaryScreen.Bounds.Width
-        Dim screenHeight As Integer = Screen.PrimaryScreen.Bounds.Height
-
-        ' Escala basada en la resolución de diseño (por ejemplo, 1920x1080)
-        Dim baseWidth As Integer = 1920
-        Dim baseHeight As Integer = 1080
-
-        Dim scaleFactorX As Double = screenWidth / baseWidth
-        Dim scaleFactorY As Double = screenHeight / baseHeight
-
-        ' Escalar el formulario
-        Me.Width = CInt(Me.Width * scaleFactorX)
-        Me.Height = CInt(Me.Height * scaleFactorY)
-
-        ' Escalar cada control dentro del formulario
-        For Each ctrl As Control In Me.Controls
-            ctrl.Left = CInt(ctrl.Left * scaleFactorX)
-            ctrl.Top = CInt(ctrl.Top * scaleFactorY)
-            ctrl.Width = CInt(ctrl.Width * scaleFactorX)
-            ctrl.Height = CInt(ctrl.Height * scaleFactorY)
-        Next
+        ' Ensure form fits on screen with proper sizing
+        AdjustFormToScreen()
+        
         Txtdescripcion.Select()
-        'Para Mayuscula ebn ciertos TEXTBOX
+        'Para Mayuscula en ciertos TEXTBOX
         'TextBox1.CharacterCasing = CharacterCasing.Upper
         Txtdescripcion.CharacterCasing = CharacterCasing.Upper
         TxtfiltroDefontana.CharacterCasing = CharacterCasing.Upper
         TxtfiltroAgromarau.CharacterCasing = CharacterCasing.Upper
 
+    End Sub
+
+    ' Method to ensure form fits properly on any screen size
+    Private Sub AdjustFormToScreen()
+        ' Get screen dimensions
+        Dim screenWidth As Integer = Screen.PrimaryScreen.WorkingArea.Width
+        Dim screenHeight As Integer = Screen.PrimaryScreen.WorkingArea.Height
+        
+        ' Set maximum form size to 90% of screen to ensure it fits
+        Dim maxWidth As Integer = CInt(screenWidth * 0.9)
+        Dim maxHeight As Integer = CInt(screenHeight * 0.9)
+        
+        ' Original designed size
+        Dim originalWidth As Integer = 1515
+        Dim originalHeight As Integer = 709
+        
+        ' Adjust form size if it's too big for screen
+        If originalWidth > maxWidth Then
+            Me.Width = maxWidth
+            Me.AutoScroll = True  ' Enable horizontal scrolling
+        Else
+            Me.Width = originalWidth
+        End If
+        
+        If originalHeight > maxHeight Then
+            Me.Height = maxHeight
+            Me.AutoScroll = True  ' Enable vertical scrolling
+        Else
+            Me.Height = originalHeight
+        End If
+        
+        ' Center the form on screen
+        Me.StartPosition = FormStartPosition.CenterScreen
+        
+        ' Ensure AutoScroll is enabled for content overflow
+        Me.AutoScroll = True
+        Me.AutoScrollMinSize = New Size(originalWidth, originalHeight)
+    End Sub
+
+    ' Handle form resize to maintain proper scrolling
+    Protected Overrides Sub OnResize(ByVal e As EventArgs)
+        MyBase.OnResize(e)
+        ' Ensure scrollbars appear when needed
+        If Me.Width < 1515 OrElse Me.Height < 709 Then
+            Me.AutoScroll = True
+        End If
+    End Sub
+
+    ' Public method to reset form size and position (can be called if needed)
+    Public Sub ResetFormSize()
+        AdjustFormToScreen()
+        Me.Refresh()
     End Sub
 
     Private Sub txtmargenconsulta_TextChanged(sender As Object, e As EventArgs) Handles txtmargenconsulta.TextChanged
