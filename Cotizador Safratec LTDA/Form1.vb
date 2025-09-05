@@ -145,16 +145,30 @@ Public Class Form1
         Me.Width = CInt(Me.Width * scaleFactorX)
         Me.Height = CInt(Me.Height * scaleFactorY)
 
-        ' Escalar cada control dentro del formulario
+        ' Escalar cada control dentro del formulario (excluyendo controles con Dock)
         For Each ctrl As Control In Me.Controls
-            ctrl.Left = CInt(ctrl.Left * scaleFactorX)
-            ctrl.Top = CInt(ctrl.Top * scaleFactorY)
-            ctrl.Width = CInt(ctrl.Width * scaleFactorX)
-            ctrl.Height = CInt(ctrl.Height * scaleFactorY)
+            ' Skip docked controls as they adjust automatically
+            If ctrl.Dock = DockStyle.None Then
+                ctrl.Left = CInt(ctrl.Left * scaleFactorX)
+                ctrl.Top = CInt(ctrl.Top * scaleFactorY)
+                ctrl.Width = CInt(ctrl.Width * scaleFactorX)
+                ctrl.Height = CInt(ctrl.Height * scaleFactorY)
+            End If
         Next
+
+        ' Ensure menu panel is visible and on top
+        Panelmenu.BringToFront()
+        Panelmenu.Visible = True
 
     End Sub
 
+    ' Method to ensure menu is always visible (call this if menu disappears)
+    Public Sub FixMenuVisibility()
+        Panelmenu.Visible = True
+        Panelmenu.BringToFront()
+        Panelmenu.Dock = DockStyle.Left
+        Me.Refresh()
+    End Sub
 
     Private Sub BtnCotizacion_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCotizacion.Click
         showsubmenu(PanelCotizacion)
