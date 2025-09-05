@@ -35,6 +35,11 @@ Public Class Form1
         region.Exclude(sizeGripRectangle)
         Me.PanelContenedor.Region = region
         Me.Invalidate()
+        
+        ' Ensure content panel stays properly positioned when form is resized
+        If Me.WindowState <> FormWindowState.Minimized Then
+            EnsurePanelContenedor2Position()
+        End If
     End Sub
 
     '----------------COLOR Y GRIP DE RECTANGULO INFERIOR
@@ -62,11 +67,45 @@ Public Class Form1
         Dim fh As Form = TryCast(Formhijo, Form)
         fh.TopLevel = False
         fh.FormBorderStyle = FormBorderStyle.None
+        
+        ' Ensure the container panel is properly positioned after menu bar
+        EnsurePanelContenedor2Position()
+        
+        ' Force the form to adapt to container size
+        fh.AutoScroll = True
+        fh.Size = PanelContenedor2.Size
         fh.Dock = DockStyle.Fill
+        
         Me.PanelContenedor2.Controls.Add(fh)
         Me.PanelContenedor2.Tag = fh
         fh.Show()
+        
+        ' Refresh to ensure proper layout
+        fh.Refresh()
+        Me.PanelContenedor2.Refresh()
+        
+        ' Automatically fix layout for all forms
+        FixChildFormLayout()
 
+    End Sub
+
+    ' Method to ensure PanelContenedor2 is properly positioned after the menu
+    Private Sub EnsurePanelContenedor2Position()
+        ' Make sure panels exist and are visible
+        If Panelmenu Is Nothing OrElse PanelContenedor2 Is Nothing Then Return
+        
+        ' Position the content panel to start after the menu bar
+        Dim menuWidth As Integer = If(Panelmenu.Visible, Panelmenu.Width, 0)
+        Dim titleHeight As Integer = If(PanelBarraTitulo IsNot Nothing, PanelBarraTitulo.Height, 32)
+        Dim bottomHeight As Integer = If(Panel1 IsNot Nothing, Panel1.Height, 20)
+        
+        PanelContenedor2.Left = menuWidth
+        PanelContenedor2.Top = titleHeight
+        PanelContenedor2.Width = Math.Max(100, Me.ClientSize.Width - menuWidth)
+        PanelContenedor2.Height = Math.Max(100, Me.ClientSize.Height - titleHeight - bottomHeight)
+        
+        ' Ensure the panel is visible
+        PanelContenedor2.Visible = True
     End Sub
 
     Private Sub BtnCerrar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCerrar.Click
@@ -159,6 +198,9 @@ Public Class Form1
         ' Ensure menu panel is visible and on top
         Panelmenu.BringToFront()
         Panelmenu.Visible = True
+        
+        ' Ensure content panel is properly positioned
+        EnsurePanelContenedor2Position()
 
     End Sub
 
@@ -167,6 +209,19 @@ Public Class Form1
         Panelmenu.Visible = True
         Panelmenu.BringToFront()
         Panelmenu.Dock = DockStyle.Left
+        Me.Refresh()
+    End Sub
+
+    ' Method to fix layout issues with child forms
+    Public Sub FixChildFormLayout()
+        EnsurePanelContenedor2Position()
+        If PanelContenedor2.Controls.Count > 0 Then
+            Dim childForm As Form = TryCast(PanelContenedor2.Controls(0), Form)
+            If childForm IsNot Nothing Then
+                childForm.Size = PanelContenedor2.Size
+                childForm.Refresh()
+            End If
+        End If
         Me.Refresh()
     End Sub
 
@@ -190,7 +245,6 @@ Public Class Form1
 
     Private Sub BtnDataCotizacion_Click(sender As Object, e As EventArgs) Handles BtnDataCotizacion.Click
         AbrirFormEnPanel(New Form25)
-
     End Sub
 
     Private Sub BtnUsuario_Click(sender As Object, e As EventArgs) Handles BtnUsuario.Click
